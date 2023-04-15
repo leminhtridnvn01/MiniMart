@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MiniMart.API.Extensions;
 using MiniMart.Domain.Models;
 using System.Text;
 
@@ -65,6 +66,12 @@ namespace MiniMart.API
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+            services.AddDbContext(Configuration);
+            services.AddGenericRepositories();
+            services.AddServices(Configuration);
+            services.AddUnitOfWork();
+            services.RegisterMediator();
         }
     }
 }

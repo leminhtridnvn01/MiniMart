@@ -2,7 +2,7 @@
 
 namespace MiniMart.Domain.Interfaces.Repositories
 {
-    public interface IUserRepository : IGenericRepository<User>
+    public interface ICategoryRepository : IGenericRepository<Category>
     {
     }
 }

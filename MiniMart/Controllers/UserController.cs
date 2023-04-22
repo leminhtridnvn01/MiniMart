@@ -2,8 +2,7 @@
 
 namespace MiniMart.API.Controllers
 {
-    [ApiController]
-    public class UserController
+    public class UserController : BaseController
     {
         public UserController() { }
         [HttpGet("current-user")]

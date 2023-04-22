@@ -7,6 +7,7 @@ using MiniMart.Infrastructure.Data.Repositories;
 using MiniMart.API.Services;
 using MiniMart.Domain.DomainEvents;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MiniMart.API.Extensions
 {
@@ -44,6 +45,29 @@ namespace MiniMart.API.Extensions
             return services;
         }
 
+        public static IServiceCollection AddScopeServices(this IServiceCollection services, params Type[] implementationAssemblyTypes)
+        {
+            foreach (var assemblyType in implementationAssemblyTypes)
+            {
+                var implementationTypes = Assembly
+                    .GetAssembly(assemblyType)
+                    .GetTypes()
+                    .Where(_ =>
+                        _.IsClass
+                        && !_.IsAbstract
+                        && !_.IsInterface
+                        && !_.IsGenericType
+                        && _.IsSubclassOf(assemblyType)
+                    );
+                foreach (var implementationType in implementationTypes)
+                {
+                    services.AddScoped(implementationType);
+                }
+            }
+            return services;
+
+        }
+
         public static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration Configuration)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -68,7 +92,7 @@ namespace MiniMart.API.Extensions
 
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<UserService>();
+            services.AddScoped(typeof(BaseService)).AddScopeServices(typeof(BaseService));
 
             //services.AddScoped(s =>
             //{

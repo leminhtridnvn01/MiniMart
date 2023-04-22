@@ -7,7 +7,7 @@ using System.Text;
 
 namespace MiniMart.API.Services
 {
-    public partial class UserService
+    public partial class UserService : BaseService
     {
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
@@ -15,7 +15,6 @@ namespace MiniMart.API.Services
         public UserService(IConfiguration configuration
             , IUnitOfWork unitOfWork
             , IUserRepository userRepository
-            )
         {
             _configuration = configuration;
             _unitOfWork = unitOfWork;

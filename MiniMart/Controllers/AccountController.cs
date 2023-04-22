@@ -4,7 +4,7 @@ using MiniMart.Domain.DTOs.User;
 
 namespace MiniMart.API.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         public AccountController()
         {

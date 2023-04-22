@@ -4,7 +4,7 @@ using MiniMart.API.Middlewares;
 using MiniMart.Domain.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+
 
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -21,6 +21,8 @@ var forwardingOptions = new ForwardedHeadersOptions()
 var startup = new Startup(builder.Configuration);
 
 startup.ConfigureServices(builder.Services);
+
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

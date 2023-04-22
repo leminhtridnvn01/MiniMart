@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Design;
+using MiniMart.Domain.Entities;
+using System.Diagnostics.Metrics;
 
 namespace MiniMart.Infrastructure.Data
 {
@@ -19,13 +21,55 @@ namespace MiniMart.Infrastructure.Data
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DbSet<User> Users { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Staff> Staffs  { get; set; }
+        public DbSet<Manager> Managers { get; set; }
+        public DbSet<Store> Stores { get; set; }
+
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<ProductDetail> ProductDetails { get; set; }
+        public DbSet<FavouriteProduct> FavouriteProducts { get; set; }
+        public DbSet<ProductStore> ProductStores { get; set; }
+
+        public DbSet<Ward> Wards { get; set; }
+        public DbSet<District> Districts { get; set; }
+        public DbSet<City> Citys { get; set; }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>()
+                        .HasOne(x => x.Client)
+                        .WithOne(x => x.User)
+                        .HasForeignKey<Client>(x => x.UserId);
+            //modelBuilder.Entity<Client>()
+            //            .HasOne(x => x.User)
+            //            .WithOne(x => x.Client)
+            //            .HasForeignKey<User>(x => x.ClientId);
+            modelBuilder.Entity<User>()
+                        .HasOne(x => x.Staff)
+                        .WithOne(x => x.User)
+                        .HasForeignKey<Staff>(x => x.UserId);
+            //modelBuilder.Entity<Staff>()
+            //            .HasOne(x => x.User)
+            //            .WithOne(x => x.Staff)
+            //            .HasForeignKey<User>(x => x.StaffId);
+            modelBuilder.Entity<User>()
+                        .HasOne(x => x.Manager)
+                        .WithOne(x => x.User)
+                        .HasForeignKey<Manager>(x => x.UserId);
+            //modelBuilder.Entity<Manager>()
+            //            .HasOne(x => x.User)
+            //            .WithOne(x => x.Manager)
+            //            .HasForeignKey<User>(x => x.ManagerId);
         }
 
         public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -52,7 +96,7 @@ namespace MiniMart.Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseLazyLoadingProxies()
-                .UseSqlServer("server=118.69.61.226;database=Intern_Microservice;user id=sa;password=vStation123;");
+                .UseSqlServer("server=DHA-000986\\TRILE;database=MiniMart;user id=sa;password=123456;");
 
             return new ApplicationDbContext(optionsBuilder.Options, new NoMediator());
         }

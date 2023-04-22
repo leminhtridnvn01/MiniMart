@@ -7,18 +7,16 @@ using System.Text;
 
 namespace MiniMart.API.Services
 {
-    public partial class UserService
+    public partial class UserService : BaseService
     {
         private readonly IConfiguration _configuration;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepository;
         public UserService(IConfiguration configuration
             , IUnitOfWork unitOfWork
             , IUserRepository userRepository
-            )
+            ) : base( unitOfWork )
         {
             _configuration = configuration;
-            _unitOfWork = unitOfWork;
             _userRepository = userRepository;
         }
         public async Task<RegisterResponse> CreateUser(RegisterRequest registerRequest)

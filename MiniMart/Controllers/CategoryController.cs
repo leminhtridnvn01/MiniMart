@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MiniMart.API.Exceptions;
 using MiniMart.API.Services;
 using MiniMart.Domain.Base.BaseDTOs;
 using MiniMart.Domain.DTOs.Categories;
+using MiniMart.Domain.DTOs.Products;
+using System.Net;
 
 namespace MiniMart.API.Controllers
 {
@@ -18,6 +21,32 @@ namespace MiniMart.API.Controllers
         public async Task<PagingResult<GetAllCategoryResponse>> GetCategories([FromQuery] GetAllCategoryRequest request)
         {
             return await _categoryService.GetCategories(request);
+        }
+
+        [HttpPost("{categoryId:int}/product")]
+        public async Task<int> AddProductAsyncs([FromQuery]AddProductRequest request, [FromRoute] int categoryId)
+        {
+            try
+            {
+                return await _categoryService.AddProductAsyncs(request, categoryId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet("{categoryId:int}/product")]
+        public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
+        {
+            try
+            {
+                return await _categoryService.GetProducts(request, categoryId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

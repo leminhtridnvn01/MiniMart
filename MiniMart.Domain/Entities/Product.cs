@@ -14,6 +14,7 @@ namespace MiniMart.Domain.Entities
         //
         public string? Name { get; set; }
         public string? Description { get; set; }
+        public string? Img { get; set; }
         public int? Price { get; set; }
         public int? PriceDecreases { get; set; }
         public LK_ProductUnit? LK_ProductUnit { get; set; }

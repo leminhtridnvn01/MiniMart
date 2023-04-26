@@ -1,26 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MiniMart.API.Exceptions;
 using MiniMart.API.Extensions;
 using MiniMart.Domain.Base.BaseDTOs;
 using MiniMart.Domain.DTOs.Categories;
+using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;
+using System.Net;
 
 namespace MiniMart.API.Services
 {
-    public class CategoryService : BaseService
+    public partial class CategoryService : BaseService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IProductRepository _productRepository;
 
         public CategoryService(IUnitOfWork unitOfWork
-            , ICategoryRepository categoryRepository) : base(unitOfWork)
+            , ICategoryRepository categoryRepository
+            , IProductRepository productRepository
+        ) : base(unitOfWork )
         {
             _categoryRepository = categoryRepository;
+            _productRepository = productRepository;
         }
-        
-        public async Task<PagingResult<GetAllCategoryResponse>> GetCategories(GetAllCategoryRequest request)
+
+        private async Task<Category> ValidateCategory(int categoryId)
         {
-            var categoriesQuery = _categoryRepository.GetQuery().Select(new GetAllCategoryResponse().GetSelection());
-            return await categoriesQuery.ToPagedListAsync(request.PageNo, request.PageSize);
+            var category = await _categoryRepository.GetAsync(x => x.Id == categoryId);
+            if (category == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Category with Id equal " + categoryId);
+            }
+            return category;
         }
     }
 }

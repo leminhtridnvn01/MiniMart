@@ -2,7 +2,7 @@
 
 namespace MiniMart.Domain.Entities
 {
-    public class Category : Entity
+    public partial class Category : Entity
     {
         public Category()
         {

@@ -34,5 +34,20 @@ namespace MiniMart.Domain.DTOs.Products
                 CategoryId = _.Category != null ? _.Category.Id : 0
             };
         }
+
+        public GetProductResponse GetMap(Product product)
+        {
+            return new GetProductResponse()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Img = product.Img,
+                Description = product.Description,
+                Price = product.Price,
+                PriceDecreases = product.PriceDecreases,
+                LK_ProductUnit = product.LK_ProductUnit,
+                CategoryId = product.Category?.Id
+            };
+        }
     }
 }

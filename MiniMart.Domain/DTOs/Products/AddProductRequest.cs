@@ -15,7 +15,15 @@ namespace MiniMart.Domain.DTOs.Products
 
         public Expression<Func<AddProductRequest, Product>> GetSelection()
         {
-            return _ => new Product() { Name = _.Name, Price = _.Price , PriceDecreases = _.PriceDecreases, LK_ProductUnit = _.LK_ProductUnit, UpdateOn = DateTime.UtcNow, CreateOn = DateTime.UtcNow};
+            return _ => new Product() 
+            { 
+                Name = _.Name, 
+                Price = _.Price, 
+                PriceDecreases = _.PriceDecreases, 
+                LK_ProductUnit = _.LK_ProductUnit, 
+                UpdateOn = DateTime.UtcNow, 
+                CreateOn = DateTime.UtcNow 
+            };
         }
 
         public Product GetMap()

@@ -37,6 +37,8 @@ namespace MiniMart.Domain.Base
         public Entity()
         {
             _events = new();
+            CreateOn= DateTime.UtcNow;
+            UpdateOn= DateTime.UtcNow;
         }
 
         [NotMapped]

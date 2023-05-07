@@ -2,12 +2,12 @@
 
 namespace MiniMart.Domain.Entities
 {
-    public class Store : Entity
+    public partial class Store : Entity
     {
         public Store()
         {
             Staffs = new List<Staff>();
-            Stores = new List<Store>();
+            ProductStores = new List<ProductStore>();
         }
         //
         public string? Name { get; set; }
@@ -16,6 +16,6 @@ namespace MiniMart.Domain.Entities
         //
         public virtual ICollection<Staff> Staffs { get; set;}
         public virtual Ward? Ward { get; set; }
-        public virtual ICollection<Store> Stores { get;}
+        public virtual ICollection<ProductStore> ProductStores { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniMart.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using MiniMart.Infrastructure.Data;
 namespace MiniMart.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230506040523_Update-Ward-Id")]
+    partial class UpdateWardId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,7 +55,10 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.City", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime?>("CreateOn")
                         .HasColumnType("datetime2");
@@ -103,7 +108,10 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.District", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("CityId")
                         .HasColumnType("int");
@@ -465,6 +473,9 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StoreId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateOn")
                         .HasColumnType("datetime2");
 
@@ -472,6 +483,8 @@ namespace MiniMart.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("StoreId");
 
                     b.HasIndex("WardId");
 
@@ -531,7 +544,10 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.Ward", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime?>("CreateOn")
                         .HasColumnType("datetime2");
@@ -547,6 +563,9 @@ namespace MiniMart.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdateOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("WardId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -653,7 +672,7 @@ namespace MiniMart.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("MiniMart.Domain.Entities.Store", "Store")
-                        .WithMany("ProductStores")
+                        .WithMany()
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -693,6 +712,10 @@ namespace MiniMart.Infrastructure.Migrations
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Store", b =>
                 {
+                    b.HasOne("MiniMart.Domain.Entities.Store", null)
+                        .WithMany("Stores")
+                        .HasForeignKey("StoreId");
+
                     b.HasOne("MiniMart.Domain.Entities.Ward", "Ward")
                         .WithMany("Stores")
                         .HasForeignKey("WardId");
@@ -739,9 +762,9 @@ namespace MiniMart.Infrastructure.Migrations
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Store", b =>
                 {
-                    b.Navigation("ProductStores");
-
                     b.Navigation("Staffs");
+
+                    b.Navigation("Stores");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.User", b =>

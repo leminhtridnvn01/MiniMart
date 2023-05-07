@@ -17,9 +17,9 @@ namespace MiniMart.API.Services
         public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
         {
             var category = await ValidateCategory(categoryId);
-             var products = await _productRepository.GetQuery(x => x.Category.Id == category.Id)
-                                                    .Select(new GetProductResponse().GetSelection())
-                                                    .ToPagedListAsync(request.PageNo, request.PageSize);
+            var products = await _productRepository.GetQuery(x => x.Category.Id == category.Id)
+                                                   .Select(new GetProductResponse().GetSelection())
+                                                   .ToPagedListAsync(request.PageNo, request.PageSize);
 
             return products;
         }

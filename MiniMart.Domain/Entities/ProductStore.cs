@@ -11,7 +11,7 @@ namespace MiniMart.Domain.Entities
     {
         public ProductStore()
         {
-
+            Quantity = 0;
         }
         //
         public int? Quantity { get; set; }

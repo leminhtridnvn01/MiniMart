@@ -3,7 +3,7 @@ using MiniMart.Domain.Enums;
 
 namespace MiniMart.Domain.Entities
 {
-    public class Product : Entity
+    public partial class Product : Entity
     {
         public Product()
         {
@@ -23,5 +23,6 @@ namespace MiniMart.Domain.Entities
         public virtual ICollection<ProductStore> ProductStores { get; set; }
         public virtual ICollection<ProductDetail> ProductDetails { get;}
         public virtual ICollection<FavouriteProduct> FavouritesProducts { get; set;}
+        public virtual ICollection<ProductType> ProductTypes { get;}
     }
 }

@@ -20,7 +20,7 @@ namespace MiniMart.Domain.DTOs.Products
         public LK_ProductUnit? LK_ProductUnit { get; set; }
         public int? CategoryId { get; set; }
 
-        public Expression<Func<Product, GetProductResponse>> GetSelection()
+        public virtual Expression<Func<Product, GetProductResponse>> GetSelection()
         {
             return _ => new GetProductResponse()
             {

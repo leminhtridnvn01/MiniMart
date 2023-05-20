@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniMart.API.Services;
 using MiniMart.Domain.DTOs.User;
+using MiniMart.Domain.DTOs.Users;
 
 namespace MiniMart.API.Controllers
 {
-    public class AccountController : BaseController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AccountController : Controller
     {
         public AccountController()
         {
@@ -27,6 +30,30 @@ namespace MiniMart.API.Controllers
             {
                 throw e;
             }
+        }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<string>> Login([FromServices] UserService _userService, LoginRequest loginRequest)
+        {
+            try
+            {
+                var user = await _userService.Login(loginRequest);
+                if (await _userService.Login(loginRequest) == null)
+                {
+                    return Unauthorized("Invalid Username or Password");
+                }
+                return Ok(new LoginResponse
+                {
+                    Username = loginRequest.UserName,
+                    Token = _userService.CreateToken(user)
+                });
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+            
         }
     }
 }

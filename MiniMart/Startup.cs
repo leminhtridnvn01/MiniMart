@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MiniMart.API.Extensions;
 using MiniMart.Domain.Models;
+using System.Security.Claims;
 using System.Text;
 
 namespace MiniMart.API
@@ -62,7 +63,7 @@ namespace MiniMart.API
                 };
             });
             services.AddHttpContextAccessor();
-
+            services.AddScoped<ClaimsPrincipal>(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );

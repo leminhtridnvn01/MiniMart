@@ -3,7 +3,7 @@ using MiniMart.Domain.Enums;
 
 namespace MiniMart.Domain.Entities
 {
-    public class User : Entity
+    public partial class User : Entity
     {
         public User() 
         {

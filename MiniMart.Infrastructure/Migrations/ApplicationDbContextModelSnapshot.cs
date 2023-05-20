@@ -144,6 +144,9 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateOn")
                         .HasColumnType("datetime2");
 

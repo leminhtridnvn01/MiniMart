@@ -12,8 +12,8 @@ using MiniMart.Infrastructure.Data;
 namespace MiniMart.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230415101350_DelPassword")]
-    partial class DelPassword
+    [Migration("20230517152339_Update-Quantity-FavouriteProduct")]
+    partial class UpdateQuantityFavouriteProduct
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,9 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<DateTime?>("CreateOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Img")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
@@ -52,10 +55,7 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.City", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime?>("CreateOn")
                         .HasColumnType("datetime2");
@@ -105,10 +105,7 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.District", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("CityId")
                         .HasColumnType("int");
@@ -147,6 +144,9 @@ namespace MiniMart.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdateOn")
@@ -260,8 +260,14 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Img")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("LK_ProductUnit")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -361,6 +367,50 @@ namespace MiniMart.Infrastructure.Migrations
                     b.ToTable("ProductStores");
                 });
 
+            modelBuilder.Entity("MiniMart.Domain.Entities.ProductType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("CreateOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Img")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PriceDecrease")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdateOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductTypes");
+                });
+
             modelBuilder.Entity("MiniMart.Domain.Entities.Staff", b =>
                 {
                     b.Property<int>("Id")
@@ -420,9 +470,6 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdateOn")
                         .HasColumnType("datetime2");
 
@@ -430,8 +477,6 @@ namespace MiniMart.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
 
                     b.HasIndex("WardId");
 
@@ -491,10 +536,7 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.Ward", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime?>("CreateOn")
                         .HasColumnType("datetime2");
@@ -616,7 +658,7 @@ namespace MiniMart.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("MiniMart.Domain.Entities.Store", "Store")
-                        .WithMany()
+                        .WithMany("ProductStores")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -624,6 +666,17 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("MiniMart.Domain.Entities.ProductType", b =>
+                {
+                    b.HasOne("MiniMart.Domain.Entities.Product", "Product")
+                        .WithMany("ProductTypes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Staff", b =>
@@ -645,10 +698,6 @@ namespace MiniMart.Infrastructure.Migrations
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Store", b =>
                 {
-                    b.HasOne("MiniMart.Domain.Entities.Store", null)
-                        .WithMany("Stores")
-                        .HasForeignKey("StoreId");
-
                     b.HasOne("MiniMart.Domain.Entities.Ward", "Ward")
                         .WithMany("Stores")
                         .HasForeignKey("WardId");
@@ -689,13 +738,15 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Navigation("ProductDetails");
 
                     b.Navigation("ProductStores");
+
+                    b.Navigation("ProductTypes");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Store", b =>
                 {
-                    b.Navigation("Staffs");
+                    b.Navigation("ProductStores");
 
-                    b.Navigation("Stores");
+                    b.Navigation("Staffs");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.User", b =>

@@ -4,22 +4,23 @@
 
 namespace MiniMart.Infrastructure.Migrations
 {
-    public partial class AddUnitColumnforProduct : Migration
+    public partial class UpdateQuantityFavouriteProduct : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
-                name: "LK_ProductUnit",
-                table: "Products",
+                name: "Quantity",
+                table: "FavouriteProducts",
                 type: "int",
-                nullable: true);
+                nullable: false,
+                defaultValue: 0);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "LK_ProductUnit",
-                table: "Products");
+                name: "Quantity",
+                table: "FavouriteProducts");
         }
     }
 }

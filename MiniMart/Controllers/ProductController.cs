@@ -41,6 +41,33 @@ namespace MiniMart.API.Controllers
                 throw e;
             }
         }
+
+        [HttpGet("get-product-in-cart")]
+        public async Task<PagingResult<GetProductInCartResponse>> GetProductInCart()
+        {
+            try
+            {
+                return await _productService.GetProductInCart();
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
+
+        [HttpGet]
+        public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request)
+        {
+            try
+            {
+                return await _productService.GetProducts(request);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         #endregion
 
         #region Post
@@ -53,6 +80,20 @@ namespace MiniMart.API.Controllers
             }
             catch (Exception e)
             {
+                throw e;
+            }
+        }
+
+        [HttpPost("add-product-to-cart")]
+        public async Task<bool> AddProductToCart([FromBody] AddProductToCartRequest request)
+        {
+            try
+            {
+                return await _productService.AddProductToCart(request);
+            }
+            catch (Exception e)
+            {
+
                 throw e;
             }
         }

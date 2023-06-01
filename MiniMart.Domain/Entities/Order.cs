@@ -3,11 +3,14 @@ using MiniMart.Domain.Enums;
 
 namespace MiniMart.Domain.Entities
 {
-    public class Order : Entity
+    public partial class Order : Entity
     {
         public Order()
         {
-
+            TotalPrice = 0;
+            OriginalPrice = 0;
+            PriceDecreases = 0;
+            ProductDetails = new List<ProductDetail>();
         }
         //
         public int? OriginalPrice { get; set; }
@@ -19,5 +22,7 @@ namespace MiniMart.Domain.Entities
         public LK_OrderStatus? LK_OrderStatus { get; set; }
         //
         public virtual User User { get; set; }
+        public virtual Store Store { get; set; } 
+        public virtual ICollection<ProductDetail> ProductDetails { get; set; }  
     }
 }

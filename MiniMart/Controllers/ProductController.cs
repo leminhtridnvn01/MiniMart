@@ -97,6 +97,20 @@ namespace MiniMart.API.Controllers
                 throw e;
             }
         }
+
+        //[HttpPost("{storeId:int}/add-to-order")]
+        //public async Task<bool> AddToOrder([FromServices] OrderService orderService, [FromBody] List<AddProductToOrderRequest> request, [FromRoute] int storeId)
+        //{
+        //    try
+        //    {
+        //        return await orderService.AddOrder(request, storeId);
+        //    }
+        //    catch (Exception e)
+        //    {
+
+        //        throw e;
+        //    }
+        //}
         #endregion
 
         #region Put

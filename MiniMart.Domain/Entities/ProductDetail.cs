@@ -2,7 +2,7 @@
 
 namespace MiniMart.Domain.Entities
 {
-    public class ProductDetail : Entity
+    public partial class ProductDetail : Entity
     {
         public ProductDetail()
         {

@@ -17,5 +17,6 @@ namespace MiniMart.Domain.Entities
         public virtual ICollection<Staff> Staffs { get; set;}
         public virtual Ward? Ward { get; set; }
         public virtual ICollection<ProductStore> ProductStores { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

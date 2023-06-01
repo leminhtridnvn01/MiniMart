@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniMart.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using MiniMart.Infrastructure.Data;
 namespace MiniMart.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230522150009_Add-Store-Order-Relative")]
+    partial class AddStoreOrderRelative
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -646,7 +648,7 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.ProductDetail", b =>
                 {
                     b.HasOne("MiniMart.Domain.Entities.Order", "Order")
-                        .WithMany("ProductDetails")
+                        .WithMany()
                         .HasForeignKey("OrderId");
 
                     b.HasOne("MiniMart.Domain.Entities.Product", "Product")
@@ -740,11 +742,6 @@ namespace MiniMart.Infrastructure.Migrations
             modelBuilder.Entity("MiniMart.Domain.Entities.District", b =>
                 {
                     b.Navigation("Wards");
-                });
-
-            modelBuilder.Entity("MiniMart.Domain.Entities.Order", b =>
-                {
-                    b.Navigation("ProductDetails");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Product", b =>

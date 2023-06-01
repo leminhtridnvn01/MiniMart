@@ -39,6 +39,7 @@ namespace MiniMart.Domain.Base
             _events = new();
             CreateOn= DateTime.UtcNow;
             UpdateOn= DateTime.UtcNow;
+            IsDelete = false;
         }
 
         [NotMapped]

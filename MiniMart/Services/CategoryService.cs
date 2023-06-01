@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MiniMart.API.Exceptions;
-using MiniMart.API.Extensions;
-using MiniMart.Domain.Base.BaseDTOs;
-using MiniMart.Domain.DTOs.Categories;
+﻿using MiniMart.API.Exceptions;
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;

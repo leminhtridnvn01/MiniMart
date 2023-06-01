@@ -27,5 +27,22 @@ namespace MiniMart.Domain.DTOs.Products
                 Quantity = _.Quantity
             };
         }
+
+        public GetProductInCartResponse GetMap(Product product, int quantity)
+        {
+            return new GetProductInCartResponse()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Img = product.Img,
+                Description = product.Description,
+                Price = product.Price,
+                PriceDecreases = product.PriceDecreases,
+                LK_ProductUnit = product.LK_ProductUnit,
+                CategoryId = product.Category?.Id,
+                Quantity = quantity,
+            };
+        }
+
     }
 }

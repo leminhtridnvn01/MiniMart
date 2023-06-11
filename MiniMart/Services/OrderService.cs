@@ -18,6 +18,8 @@ namespace MiniMart.API.Services
         private readonly IStoreRepository _storeRepository;
         private readonly ICityRepository _cityRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IProductStoreRepository _productStoreRepository;
+        private readonly PaymentService _paymentService;
 
         public OrderService(IUnitOfWork unitOfWork
             , IOrderRepository orderRepository
@@ -27,6 +29,8 @@ namespace MiniMart.API.Services
             , IStoreRepository storeRepository
             , ICityRepository cityRepository
             , IUserRepository userRepository
+            , IProductStoreRepository productStoreRepository
+            , PaymentService paymentService
             , ClaimsPrincipal user) : base(unitOfWork)
         {
             _user = user;
@@ -37,8 +41,19 @@ namespace MiniMart.API.Services
             _storeRepository = storeRepository;
             _cityRepository = cityRepository;
             _userRepository = userRepository;
+            _productStoreRepository = productStoreRepository;
+            _paymentService = paymentService;
         }
 
+        private async Task<Order> ValidateOrder(int orderId)
+        {
+            var order = await _orderRepository.GetAsync(x => x.Id == orderId);
+            if (order == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Order with Id equal " + orderId);
+            }
+            return order;
+        }
         private async Task<User> ValidateUser(int userId)
         {
             var user = await _userRepository.GetAsync(x => x.Id == userId);
@@ -57,6 +72,35 @@ namespace MiniMart.API.Services
                 throw new HttpException(HttpStatusCode.NotFound, "Could not found the Store with Id equal " + storeId);
             }
             return store;
+        }
+        private async Task<Product> ValidateProduct(int productId)
+        {
+            var product = await _productRepository.GetAsync(x => x.Id == productId);
+            if (product == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Product with Id equal " + productId);
+            }
+            return product;
+        }
+
+        private async Task<(Product, Store)> ValidateProductInStore(int productId, int storeId)
+        {
+            var product = await _productRepository.GetAsync(x => x.Id == productId);
+            if (product == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Product with Id equal " + productId);
+            }
+            var store = await _storeRepository.GetAsync(x => x.Id == storeId);
+            if (store == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Store with Id equal " + storeId);
+            }
+            var isValid = await _productStoreRepository.AnyAsync(x => x.Store.Id == store.Id && x.Product.Id == product.Id && x.Quantity > 0);
+            if (!isValid)
+            {
+                throw new HttpException(HttpStatusCode.BadRequest, "This product is currently out of stock at this store.");
+            }
+            return (product, store);
         }
     }
 }

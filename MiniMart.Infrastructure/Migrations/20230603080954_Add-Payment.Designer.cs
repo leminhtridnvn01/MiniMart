@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniMart.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using MiniMart.Infrastructure.Data;
 namespace MiniMart.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230603080954_Add-Payment")]
+    partial class AddPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,9 +149,6 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdateOn")
                         .HasColumnType("datetime2");
 
@@ -159,8 +158,6 @@ namespace MiniMart.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("StoreId");
 
                     b.HasIndex("UserId");
 
@@ -224,24 +221,8 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<int?>("LK_OrderStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LK_OrderType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("LK_PaymentMethod")
-                        .HasColumnType("int");
-
                     b.Property<int?>("OriginalPrice")
                         .HasColumnType("int");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("PickupTimeFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("PickupTimeTo")
-                        .HasColumnType("datetime2");
 
                     b.Property<int?>("PriceDecreases")
                         .HasColumnType("int");
@@ -257,10 +238,6 @@ namespace MiniMart.Infrastructure.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -311,8 +288,6 @@ namespace MiniMart.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
 
                     b.ToTable("Payments");
                 });
@@ -664,12 +639,6 @@ namespace MiniMart.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MiniMart.Domain.Entities.Store", "Store")
-                        .WithMany("FavouriteProducts")
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MiniMart.Domain.Entities.User", "User")
                         .WithMany("FavouriteProducts")
                         .HasForeignKey("UserId")
@@ -677,8 +646,6 @@ namespace MiniMart.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("Store");
 
                     b.Navigation("User");
                 });
@@ -711,17 +678,6 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Navigation("Store");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MiniMart.Domain.Entities.Payment", b =>
-                {
-                    b.HasOne("MiniMart.Domain.Entities.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Product", b =>
@@ -850,8 +806,6 @@ namespace MiniMart.Infrastructure.Migrations
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Store", b =>
                 {
-                    b.Navigation("FavouriteProducts");
-
                     b.Navigation("Orders");
 
                     b.Navigation("ProductStores");

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniMart.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using MiniMart.Infrastructure.Data;
 namespace MiniMart.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230608133213_Update-Order-Add-Property-OrderType")]
+    partial class UpdateOrderAddPropertyOrderType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,12 +238,6 @@ namespace MiniMart.Infrastructure.Migrations
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("PickupTimeFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("PickupTimeTo")
-                        .HasColumnType("datetime2");
 
                     b.Property<int?>("PriceDecreases")
                         .HasColumnType("int");

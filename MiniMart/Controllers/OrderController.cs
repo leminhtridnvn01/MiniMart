@@ -55,14 +55,64 @@ namespace MiniMart.API.Controllers
             }
         }
 
-
-
         [HttpPost("add-to-order")]
         public async Task<bool> AddToOrder( [FromBody] AddOrderRequest request)
         {
             try
             {
                 return await _orderService.AddOrder(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
+        [HttpPost("process-order")]
+        public async Task<OrderProcessResponse> ProcessOrderAsync(OrderInfo request)
+        {
+            try
+            {
+                return await _orderService.ProcessOrderAsync(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
+        [HttpPut("edit-delivery-info")]
+        public async Task<bool> UpdateDeliveryInfoOrderAsync([FromBody] UpdateDeliveryAddressOrderRequest request)
+        {
+            try
+            {
+                return await _orderService.UpdateDeliveryInfoOrderAsync(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
+        [HttpPut("edit-order-type")]
+        public async Task<bool> UpdateOrderTypeAsync(UpdateOrderTypeRequest request)
+        {
+            try
+            {
+                return await _orderService.UpdateOrderTypeAsync(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
+        [HttpPut("edit-payment-method")]
+        public async Task<bool> UpdatePaymentMethodAsync(UpdatePaymentMethodRequest request)
+        {
+            try
+            {
+                return await _orderService.UpdatePaymentMethodAsync(request);
             }
             catch (Exception e)
             {

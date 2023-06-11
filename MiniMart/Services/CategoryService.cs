@@ -2,6 +2,7 @@
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;
+using MiniMart.Infrastructure.Data.Repositories;
 using System.Net;
 
 namespace MiniMart.API.Services
@@ -10,14 +11,17 @@ namespace MiniMart.API.Services
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IProductStoreRepository _productStoreRepository;
 
         public CategoryService(IUnitOfWork unitOfWork
             , ICategoryRepository categoryRepository
             , IProductRepository productRepository
+            , IProductStoreRepository productStoreRepository
         ) : base(unitOfWork )
         {
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;
+            _productStoreRepository = productStoreRepository;
         }
 
         private async Task<Category> ValidateCategory(int categoryId)

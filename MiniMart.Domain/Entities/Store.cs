@@ -8,6 +8,7 @@ namespace MiniMart.Domain.Entities
         {
             Staffs = new List<Staff>();
             ProductStores = new List<ProductStore>();
+            FavouriteProducts = new List<FavouriteProduct>();
         }
         //
         public string? Name { get; set; }
@@ -18,5 +19,6 @@ namespace MiniMart.Domain.Entities
         public virtual Ward? Ward { get; set; }
         public virtual ICollection<ProductStore> ProductStores { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<FavouriteProduct> FavouriteProducts { get; set; }
     }
 }

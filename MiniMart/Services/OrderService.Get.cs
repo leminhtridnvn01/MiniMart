@@ -33,11 +33,18 @@ namespace MiniMart.API.Services
             return await _orderRepository.GetQuery(x => request.OrderStatus.HasValue 
                                                         ? x.LK_OrderStatus.Value == request.OrderStatus.Value
                                                         : true)
+                                         .OrderByDescending(x => x.CreateOn)
                                          .Select(x => new GetOrderResponse()
                                          {
                                              OrderId = x.Id,
                                              StoreName = x.Store.Name ?? "Unknown",
                                              OrderStatus = x.LK_OrderStatus.HasValue ? x.LK_OrderStatus.Value : Domain.Enums.LK_OrderStatus.None,
+                                             TotalPrice = x.ProductDetails.Sum(pd => pd.TotalPrice.GetValueOrDefault()),
+                                             UserName = x.User.Name ?? "Unknown",
+                                             DeliveryAddress = x.DeliveryAddress ?? "",
+                                             ContactPhoneNumber = x.User.PhoneNumber ?? "",
+                                             OrderType = (int)x.LK_OrderType.Value,
+                                             PaymentMethod = (int)x.LK_PaymentMethod.Value,
                                              Products = x.ProductDetails.Select(pd => new GetProductInCartResponse()
                                              {
                                                  Id = pd.Product.Id,
@@ -48,7 +55,7 @@ namespace MiniMart.API.Services
                                                  PriceDecreases = pd.Product.PriceDecreases,
                                                  LK_ProductUnit = pd.Product.LK_ProductUnit,
                                                  CategoryId = pd.Product.Category != null ? pd.Product.Category.Id : 0,
-                                                 Quantity = pd.Quantity.HasValue ? pd.Quantity.Value : 0
+                                                 Quantity = pd.Quantity.HasValue ? pd.Quantity.Value : 0,
                                              })
                                          })
                                          .ToPagedListAsync(request.PageNo, request.PageSize);

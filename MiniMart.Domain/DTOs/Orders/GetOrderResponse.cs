@@ -15,6 +15,12 @@ namespace MiniMart.Domain.DTOs.Orders
         public int OrderId { get; set; }
         public string StoreName { get; set; }
         public LK_OrderStatus OrderStatus { get; set; }
+        public int TotalPrice { get; set; }
+        public string UserName { get; set; }
+        public string DeliveryAddress { get; set; }
+        public string ContactPhoneNumber { get; set; }
+        public int? OrderType { get; set; }
+        public int? PaymentMethod { get; set; }
         public IEnumerable<GetProductInCartResponse> Products { get; set; }
     }
 }

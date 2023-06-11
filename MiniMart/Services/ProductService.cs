@@ -83,5 +83,25 @@ namespace MiniMart.API.Services
             }
             return store;
         }
+
+        private async Task<(Product, Store)> ValidateProductInStore(int productId, int storeId)
+        {
+            var product = await _productRepository.GetAsync(x => x.Id == productId);
+            if (product == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Product with Id equal " + productId);
+            }
+            var store = await _storeRepository.GetAsync(x => x.Id == storeId);
+            if (store == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Store with Id equal " + storeId);
+            }
+            var isValid = await _productStoreRepository.AnyAsync(x => x.Store.Id == store.Id && x.Product.Id == product.Id && x.Quantity > 0);
+            if (!isValid)
+            {
+                throw new HttpException(HttpStatusCode.BadRequest, "This product is currently out of stock at this store.");
+            }
+            return (product, store);
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace MiniMart.Domain.DTOs.Products
         }
 
         public int Quantity { get; set; }
+        public string? StoreName { get; set; }
+        public int StoreId { get; set; }
 
         public Expression<Func<FavouriteProduct, GetProductInCartResponse>> GetSelection()
         {
@@ -24,7 +26,9 @@ namespace MiniMart.Domain.DTOs.Products
                 PriceDecreases = _.Product.PriceDecreases,
                 LK_ProductUnit = _.Product.LK_ProductUnit,
                 CategoryId = _.Product.Category != null ? _.Product.Category.Id : 0,
-                Quantity = _.Quantity
+                Quantity = _.Quantity,
+                StoreName = _.Store.Name ?? "Unknown",
+                StoreId = _.Store.Id,
             };
         }
 

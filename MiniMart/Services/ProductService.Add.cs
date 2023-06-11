@@ -28,15 +28,15 @@ namespace MiniMart.API.Services
         public async Task<bool> AddProductToCart(AddProductToCartRequest request)
         {
             var user = await ValidateUser(_user.GetUserId());
-            var product = await ValidateProduct(request.ProductId);
-            var isFavouriteProductExisted = await _favouriteProductRepository.AnyAsync(x => x.Product.Id == product.Id && x.User.Id == user.Id);
+            var (product, store) = await ValidateProductInStore(request.ProductId, request.StoreId);
+            var isFavouriteProductExisted = await _favouriteProductRepository.AnyAsync(x => x.Product.Id == product.Id && x.Store.Id == store.Id && x.User.Id == user.Id);
             if (isFavouriteProductExisted)
             {
-                user.UpdateQuantityFavouriteProduct(product, request.Quantity);
+                user.UpdateQuantityFavouriteProduct(product, store, request.Quantity);
             }
             else
             {
-                user.AddFavouriteProduct(product, request.Quantity);
+                user.AddFavouriteProduct(product, store, request.Quantity);
             }
             await _unitOfWork.SaveChangeAsync();
             return true;

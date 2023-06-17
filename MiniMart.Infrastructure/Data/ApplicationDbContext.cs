@@ -42,6 +42,8 @@ namespace MiniMart.Infrastructure.Data
 
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<Strategy> Strategies { get; set; }
+        public DbSet<StrategyDetail> StrategiesDetails { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

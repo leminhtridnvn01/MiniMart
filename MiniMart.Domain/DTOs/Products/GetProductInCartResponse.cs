@@ -23,7 +23,10 @@ namespace MiniMart.Domain.DTOs.Products
                 Img = _.Product.Img,
                 Description = _.Product.Description,
                 Price = _.Product.Price,
-                PriceDecreases = _.Product.PriceDecreases,
+                PriceDecreases = (_.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == _.Store.Id).PriceDecreases.HasValue
+                                  && _.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == _.Store.Id).PriceDecreases.Value > 0)
+                                  ? _.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == _.Store.Id).PriceDecreases.Value
+                                  : _.Product.PriceDecreases,
                 LK_ProductUnit = _.Product.LK_ProductUnit,
                 CategoryId = _.Product.Category != null ? _.Product.Category.Id : 0,
                 Quantity = _.Quantity,

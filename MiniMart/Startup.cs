@@ -2,7 +2,9 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MiniMart.API.Extensions;
+using MiniMart.API.Jobs;
 using MiniMart.Domain.Models;
+using Quartz;
 using System.Security.Claims;
 using System.Text;
 
@@ -73,6 +75,24 @@ namespace MiniMart.API
             services.AddServices(Configuration);
             services.AddUnitOfWork();
             services.RegisterMediator();
+
+            services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionScopedJobFactory();
+
+                q.AddJob<PriceDecreaseStrategyJob>(opts => opts.WithIdentity("PriceDecreaseStrategy"));
+                q.AddTrigger(opts => opts
+                 .ForJob("PriceDecreaseStrategy")
+                 .WithIdentity("PriceDecreaseStrategy-trigger")
+                 .WithCronSchedule("*/6 * * * * ?"));
+
+                q.AddJob<PriceDecreaseStrategyExpiredJob>(opts => opts.WithIdentity("PriceDecreaseStrategyExpired"));
+                q.AddTrigger(opts => opts
+                 .ForJob("PriceDecreaseStrategyExpired")
+                 .WithIdentity("PriceDecreaseStrategyExpired-trigger")
+                 .WithCronSchedule("*/6 * * * * ?"));
+            });
+            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
         }
     }
 }

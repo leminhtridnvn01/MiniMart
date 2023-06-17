@@ -45,9 +45,32 @@ namespace MiniMart.API.Services
             {
                 return new PagingResult<GetProductResponse>();
             }
-            var products = await _productRepository.GetQuery(x => x.Name.ToLower().Contains(request.Search.ToLower()))
+            var products = await _productRepository.GetQuery(x => x.Name.ToLower().Contains(request.Search.ToLower())
+                                                                  && (!request.IsSale.HasValue 
+                                                                      || (x.PriceDecreases.HasValue && x.PriceDecreases > 0)  
+                                                                  ))
                                                    .Select(new GetProductResponse().GetSelection())
                                                    .ToPagedListAsync(request.PageNo, request.PageSize);
+            return products;
+        }
+
+        public async Task<PagingResult<GetSaleProductResponse>> GetSaleProducts([FromQuery] GetProductRequest request)
+        {
+            var products = await _productStoreRepository.GetQuery(ps => (ps.PriceDecreases.HasValue && ps.PriceDecreases.Value > 0)
+                                                                         || (ps.Product.PriceDecreases.HasValue && ps.Product.PriceDecreases.Value > 0))
+                                                        .Select(new GetSaleProductResponse().GetSelection())
+                                                        .ToPagedListAsync(request.PageNo, request.PageSize);
+            return products;
+        }
+
+        public async Task<PagingResult<GetSaleProductResponse>> GetSaleProducts([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
+        {
+            var category = await ValidateCategory(categoryId);
+            var products = await _productStoreRepository.GetQuery(ps => ps.Product.Category.Id == category.Id
+                                                                        && (ps.PriceDecreases.HasValue && ps.PriceDecreases.Value > 0)
+                                                                        || (ps.Product.PriceDecreases.HasValue && ps.Product.PriceDecreases.Value > 0))
+                                                        .Select(new GetSaleProductResponse().GetSelection())
+                                                        .ToPagedListAsync(request.PageNo, request.PageSize);
             return products;
         }
     }

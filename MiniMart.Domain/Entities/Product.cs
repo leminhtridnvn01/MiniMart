@@ -24,5 +24,6 @@ namespace MiniMart.Domain.Entities
         public virtual ICollection<ProductDetail> ProductDetails { get;}
         public virtual ICollection<FavouriteProduct> FavouritesProducts { get; set;}
         public virtual ICollection<ProductType> ProductTypes { get;}
+        public virtual ICollection<StrategyDetail> StrategyDetails { get; set; }
     }
 }

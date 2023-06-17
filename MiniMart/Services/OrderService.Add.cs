@@ -41,12 +41,12 @@ namespace MiniMart.API.Services
 
                 foreach (var item in productGroup)
                 {
-                    var product = await ValidateProduct(item.ProductId);
+                    var product = await ValidateProduct(item.ProductId, store.Id);
 
                     var productDetail = new ProductDetail(product, order, item.Quantity);
                     productDetails.Add(productDetail);
-                    order.OriginalPrice += productDetail.OriginalPrice;
-                    order.PriceDecreases += productDetail.PriceDecreases;
+                    order.OriginalPrice += (productDetail.OriginalPrice * productDetail.Quantity);
+                    order.PriceDecreases += (productDetail.PriceDecreases * productDetail.Quantity);
                     order.TotalPrice += productDetail.TotalPrice;
                 }
             }
@@ -85,7 +85,7 @@ namespace MiniMart.API.Services
                         return new OrderProcessResponse
                         {
                             IsHasError = false,
-                            Url = "google.com"
+                            Url = "http://localhost:4200/order"
                         };
                     case LK_PaymentMethod.OnlinePaymnet:
                         var paymentInfoRequest = new PaymentInfoRequest()

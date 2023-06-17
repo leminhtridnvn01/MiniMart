@@ -8,6 +8,8 @@ using MiniMart.API.Services;
 using MiniMart.Domain.DomainEvents;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
+using MiniMart.API.Jobs;
 
 namespace MiniMart.API.Extensions
 {
@@ -93,11 +95,8 @@ namespace MiniMart.API.Extensions
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped(typeof(BaseService)).AddScopeServices(typeof(BaseService));
+            services.AddScoped<PriceDecreaseStrategyJob>();
 
-            //services.AddScoped(s =>
-            //{
-            //    return new PaymentService(configuration);
-            //});
             return services;
         }
 

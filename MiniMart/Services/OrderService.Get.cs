@@ -38,6 +38,7 @@ namespace MiniMart.API.Services
                                          {
                                              OrderId = x.Id,
                                              StoreName = x.Store.Name ?? "Unknown",
+                                             StoreId = x.Store.Id,
                                              OrderStatus = x.LK_OrderStatus.HasValue ? x.LK_OrderStatus.Value : Domain.Enums.LK_OrderStatus.None,
                                              TotalPrice = x.ProductDetails.Sum(pd => pd.TotalPrice.GetValueOrDefault()),
                                              UserName = x.User.Name ?? "Unknown",
@@ -52,8 +53,11 @@ namespace MiniMart.API.Services
                                                  Img = pd.Product.Img,
                                                  Description = pd.Product.Description,
                                                  Price = pd.Product.Price,
-                                                 PriceDecreases = pd.Product.PriceDecreases,
-                                                 LK_ProductUnit = pd.Product.LK_ProductUnit,
+                                                 PriceDecreases = (pd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == x.Store.Id).PriceDecreases.HasValue 
+                                                                   && pd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == x.Store.Id).PriceDecreases.Value > 0)
+                                                                   ? pd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == x.Store.Id).PriceDecreases.Value
+                                                                   : pd.Product.PriceDecreases,
+                                                     LK_ProductUnit = pd.Product.LK_ProductUnit,
                                                  CategoryId = pd.Product.Category != null ? pd.Product.Category.Id : 0,
                                                  Quantity = pd.Quantity.HasValue ? pd.Quantity.Value : 0,
                                              })

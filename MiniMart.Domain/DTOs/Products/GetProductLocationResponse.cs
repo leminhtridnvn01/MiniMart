@@ -34,6 +34,8 @@ namespace MiniMart.Domain.DTOs.Products
         public string Address { get; set; }
         public int ProductId { get; set; }
         public string ProductName { get; set; }
+        public int? Price { get; set; }
+        public int? PriceDecreases { get; set; }
         public int Quantity { get; set; }
 
         public Expression<Func<ProductStore, StoreResponse>> GetSelection()
@@ -47,6 +49,8 @@ namespace MiniMart.Domain.DTOs.Products
                 Address = _.Store.Address + ", " + _.Store.Ward.Name + ", " + _.Store.Ward.District.Name + ", " + _.Store.Ward.District.City.Name,
                 ProductId = _.Product.Id,
                 ProductName = _.Product.Name,
+                Price = _.Price,
+                PriceDecreases = _.PriceDecreases,
                 Quantity = _.Quantity.Value
             };
         }

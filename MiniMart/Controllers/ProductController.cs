@@ -16,6 +16,19 @@ namespace MiniMart.API.Controllers
         }
 
         #region Get
+        [HttpGet]
+        public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request)
+        {
+            try
+            {
+                return await _productService.GetProducts(request);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         [HttpGet("/api/Category/{categoryId:int}/product/{productId:int}")]
         public async Task<GetProductResponse> GetProduct([FromRoute] int categoryId, [FromRoute] int productId)
         {
@@ -56,12 +69,25 @@ namespace MiniMart.API.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request)
+        [HttpGet("get-sale-product")]
+        public async Task<PagingResult<GetSaleProductResponse>> GetSaleProducts([FromQuery] GetProductRequest request)
         {
             try
             {
-                return await _productService.GetProducts(request);
+                return await _productService.GetSaleProducts(request);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet("{categoryId:int}/product/get-sale-product")]
+        public async Task<PagingResult<GetSaleProductResponse>> GetSaleProducts([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
+        {
+            try
+            {
+                return await _productService.GetSaleProducts(request, categoryId);
             }
             catch (Exception e)
             {

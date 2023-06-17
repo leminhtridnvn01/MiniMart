@@ -15,6 +15,8 @@ namespace MiniMart.Domain.Entities
         }
         //
         public int? Quantity { get; set; }
+        public int? Price { get; set; }
+        public int? PriceDecreases { get; set; }
         //
         public virtual Product Product { get; set; }
         public virtual Store Store { get; set; }

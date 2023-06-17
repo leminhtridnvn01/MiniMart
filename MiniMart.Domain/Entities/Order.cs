@@ -9,6 +9,7 @@ namespace MiniMart.Domain.Entities
         {
             TotalPrice = 0;
             OriginalPrice = 0;
+            PriceDecreases = 0;
             ProductDetails = new List<ProductDetail>();
         }
         //

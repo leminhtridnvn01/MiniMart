@@ -14,12 +14,12 @@ namespace MiniMart.API.Services
         public string CreateToken(User user)
         {
             var roles = "";
-            if (user.Client != null)
-                roles += " Client";
-            if (user.Staff != null)
-                roles += " Staff";
-            if (user.Manager != null)
-                roles += " Manager";
+            if (user.Client != null && !user.Client.IsDelete)
+                roles += "Client ";
+            if (user.Staff != null && !user.Staff.IsDelete)
+                roles += "Staff ";
+            if (user.Manager != null && !user.Manager.IsDelete)
+                roles += "Manager ";
             var claims = new List<Claim>()
             {
                 new Claim("_user_id", user.Id.ToString()),
@@ -32,7 +32,7 @@ namespace MiniMart.API.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(10),
+                Expires = DateTime.Now.AddYears(10),
                 SigningCredentials = new SigningCredentials(symmetricKey, SecurityAlgorithms.HmacSha512Signature)
             };
             var tokenHandler = new JwtSecurityTokenHandler();

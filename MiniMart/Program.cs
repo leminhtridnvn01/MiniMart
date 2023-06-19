@@ -4,8 +4,7 @@ using MiniMart.API.Middlewares;
 using MiniMart.Domain.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
+builder.Services.AddCors();
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
     .AddJsonFile("appsettings.json", false, true)

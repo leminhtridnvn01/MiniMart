@@ -94,9 +94,36 @@ namespace MiniMart.API.Controllers
                 throw e;
             }
         }
+
+        [HttpGet("get-manager-product")]
+        public async Task<PagingResult<GetProductManagerResponse>> GetStoreProduct([FromQuery] GetProductManagerRequest request)
+        {
+            try
+            {
+                return await _productService.GetStoreProduct(request);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         #endregion
 
         #region Post
+        [HttpPost]
+        public async Task<bool> CreateProduct(CreateProductToOrderRequest request)
+        {
+            try
+            {
+                return await _productService.CreateProduct(request);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         [HttpPost("add-to-store")]
         public async Task<bool> AddProduct([FromBody] AddProductStoreRequest request)
         {
@@ -124,6 +151,8 @@ namespace MiniMart.API.Controllers
             }
         }
 
+         
+
         //[HttpPost("{storeId:int}/add-to-order")]
         //public async Task<bool> AddToOrder([FromServices] OrderService orderService, [FromBody] List<AddProductToOrderRequest> request, [FromRoute] int storeId)
         //{
@@ -140,7 +169,19 @@ namespace MiniMart.API.Controllers
         #endregion
 
         #region Put
+        [HttpPut]
+        public async Task<bool> EditProduct(EditProductToOrderRequest request)
+        {
+            try
+            {
+                return await _productService.EditProduct(request);
+            }
+            catch (Exception e)
+            {
 
+                throw e;
+            }
+        }
         #endregion
 
         #region Patch

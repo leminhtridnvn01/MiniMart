@@ -28,5 +28,19 @@ namespace MiniMart.API.Controllers
                 throw e;
             }
         }
+
+        [HttpGet("get-store-manager")]
+        public async Task<List<GetLocationManageStoreResponse>> GetMyStoreLocations()
+        {
+            try
+            {
+                return await _storeService.GetMyStoreLocations();
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MiniMart.API.Services;
 using MiniMart.Domain.Base.BaseDTOs;
 using MiniMart.Domain.DTOs.Locations;
@@ -16,6 +17,7 @@ namespace MiniMart.API.Controllers
         }
 
         #region Get
+        [AllowAnonymous]
         [HttpGet]
         public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request)
         {
@@ -29,6 +31,7 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("/api/Category/{categoryId:int}/product/{productId:int}")]
         public async Task<GetProductResponse> GetProduct([FromRoute] int categoryId, [FromRoute] int productId)
         {
@@ -42,6 +45,7 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("{productId:int}/get-current-location")]
         public async Task<List<GetProductLocationResponse>> GetLocation([FromRoute] int productId, [FromQuery] GetProductLocationRequest request)
         {
@@ -69,6 +73,7 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("get-sale-product")]
         public async Task<PagingResult<GetSaleProductResponse>> GetSaleProducts([FromQuery] GetProductRequest request)
         {
@@ -82,6 +87,7 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("{categoryId:int}/product/get-sale-product")]
         public async Task<PagingResult<GetSaleProductResponse>> GetSaleProducts([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
         {

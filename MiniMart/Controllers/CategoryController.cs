@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MiniMart.API.Exceptions;
 using MiniMart.API.Services;
 using MiniMart.Domain.Base.BaseDTOs;
@@ -18,12 +19,14 @@ namespace MiniMart.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<PagingResult<GetAllCategoryResponse>> GetCategories([FromQuery] GetAllCategoryRequest request)
         {
             return await _categoryService.GetCategories(request);
         }
 
         [HttpGet("{categoryId:int}/product")]
+        [AllowAnonymous]
         public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
         {
             try

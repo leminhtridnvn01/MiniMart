@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniMart.API.Extensions;
+using MiniMart.Domain.Base.BaseDTOs;
+using MiniMart.Domain.DTOs.Orders;
 using MiniMart.Domain.DTOs.Products;
 using MiniMart.Domain.DTOs.Stores;
 using MiniMart.Domain.Entities;
@@ -27,6 +29,41 @@ namespace MiniMart.API.Services
                                              Stores = x.ToList()
                                          })
                                          .ToListAsync();
+        }
+
+        public async Task<GetRenueveResponse> GetRevenueOrderAsync(GetRenueveRequest request )
+        {
+            var store = await ValidateStore(request.StoreId);
+            var orderQuery = _orderRepository.GetQuery(o => (!o.IsPaid.HasValue || o.IsPaid.Value)
+                                                            && o.Store.Id == store.Id
+                                                            && o.LK_OrderStatus == Domain.Enums.LK_OrderStatus.Complete
+                                                            && o.CreateOn >= request.StartDate
+                                                            && o.CreateOn <= request.EndDate);
+                                        
+            var order = orderQuery.Select(o => new GetRenueveOrderResponse()
+                                         {
+                                            OrderId = o.Id,
+                                            DeliveryAddress = o.DeliveryAddress,
+                                            UserName = o.UserName,
+                                            PhoneNumber = o.PhoneNumber,
+                                            DeliveryFee = o.DeliveryFee,
+                                            OriginalPrice = o.OriginalPrice,
+                                            PriceDecreases = o.PriceDecreases,
+                                            TotalPrice = o.TotalPrice,
+                                            LK_OrderStatus = o.LK_OrderStatus,
+                                            LK_OrderType = o.LK_OrderType,
+                                            LK_PaymentMethod = o.LK_PaymentMethod,
+                                            CreatedOn = o.CreateOn
+                                         })
+                                  .ToPagedList(request.PageNo, request.PageSize);
+
+            var venueve = new GetRenueveResponse()
+            {
+                TotalRenueve = orderQuery.Sum(o => o.TotalPrice.HasValue ? o.TotalPrice.Value : 0),
+                RenueveOrders = order
+            };
+
+            return venueve;
         }
     } 
 }

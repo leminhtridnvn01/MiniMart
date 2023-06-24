@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniMart.API.Services;
+using MiniMart.Domain.Base.BaseDTOs;
 using MiniMart.Domain.DTOs.Strategies;
 
 namespace MiniMart.API.Controllers
@@ -30,6 +31,19 @@ namespace MiniMart.API.Controllers
         public async Task<bool> Test()
         {
             return await _strategyService.Test();
+        }
+
+        [HttpGet("get-manager-strategy")]
+        public async Task<PagingResult<GetStrategyResponse>> GetManagerStrategy([FromQuery] GetStrategyRequest request)
+        {
+            try
+            {
+                return await _strategyService.GetManagerStrategy(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
         }
     }
 }

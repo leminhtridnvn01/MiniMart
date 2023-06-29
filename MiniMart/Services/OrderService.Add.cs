@@ -19,7 +19,15 @@ namespace MiniMart.API.Services
             //var store = await ValidateStore(request.StoreId);
             var productIds = request.Products.Select(x => x.ProductId).ToList();
 
-            
+            var orderParrent = new OrderParrent()
+            {
+                User = user,
+                IsPaid = false,
+                DeliveryAddress = "",
+                PhoneNumber = user.PhoneNumber ?? "",
+                UserName = user.Name,
+                LK_OrderStatus = Domain.Enums.LK_OrderStatus.WaitingForPayment,
+            };
 
             // Create list ProductDetail
             var productDetails = new List<ProductDetail>();
@@ -37,6 +45,7 @@ namespace MiniMart.API.Services
                     DeliveryAddress = "",
                     PhoneNumber = user.PhoneNumber ?? "",
                     UserName = user.Name,
+                    OrderParrent = orderParrent,
                 };
 
                 foreach (var item in productGroup)
@@ -49,6 +58,9 @@ namespace MiniMart.API.Services
                     order.PriceDecreases += (productDetail.PriceDecreases * productDetail.Quantity);
                     order.TotalPrice += productDetail.TotalPrice;
                 }
+                orderParrent.TotalPrice += order.TotalPrice;
+                orderParrent.OriginalPrice += order.OriginalPrice;
+                orderParrent.PriceDecreases += order.PriceDecreases;
             }
             //foreach (var item in request.Products)
             //{
@@ -73,18 +85,22 @@ namespace MiniMart.API.Services
 
         public async Task<OrderProcessResponse> ProcessOrderAsync(OrderInfo request)
         {
-            var order = await ValidateOrder(request.OrderId);
+            var orderParrent = await ValidateOrderParrent(request.OrderParrentId);
             
-            if(order.LK_OrderStatus == LK_OrderStatus.WaitingForPayment)
+            if(orderParrent.LK_OrderStatus == LK_OrderStatus.WaitingForPayment)
             {
-                switch (order.LK_PaymentMethod)
+                switch (orderParrent.LK_PaymentMethod)
                 {
                     case LK_PaymentMethod.Cash:
-                        order.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
-                        foreach (var item in order.ProductDetails)
+                        orderParrent.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
+                        foreach(var order in orderParrent.Orders)
                         {
-                            var productStore = item.Product.ProductStores.FirstOrDefault(x => x.Store.Id == order.Store.Id);
-                            productStore.Quantity = productStore.Quantity - item.Quantity;
+                            order.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
+                            foreach (var item in order.ProductDetails)
+                            {
+                                var productStore = item.Product.ProductStores.FirstOrDefault(x => x.Store.Id == order.Store.Id);
+                                productStore.Quantity = productStore.Quantity - item.Quantity;
+                            }
                         }
                         await _unitOfWork.SaveChangeAsync();
                         return new OrderProcessResponse
@@ -95,8 +111,8 @@ namespace MiniMart.API.Services
                     case LK_PaymentMethod.OnlinePaymnet:
                         var paymentInfoRequest = new PaymentInfoRequest()
                         {
-                            OrderId = order.Id,
-                            Amount = order.TotalPrice.Value
+                            OrderParrentId = orderParrent.Id,
+                            Amount = orderParrent.TotalPrice.Value
                         };
                         var url = await _paymentService.Pay(paymentInfoRequest);
                         return new OrderProcessResponse

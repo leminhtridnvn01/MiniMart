@@ -13,7 +13,7 @@ namespace MiniMart.Domain.Entities
         {
 
         }
-        public int OrderId { get; set; }
+        public int? OrderParrentId { get; set; }
         public int UserId { get; set; }
         public bool? Status { get; set; }
         public int Amount { get; set; }
@@ -21,6 +21,6 @@ namespace MiniMart.Domain.Entities
         public string? PaymentCode { get; set; }
         public string OrderDesc { get; set; }
         //
-        public virtual Order Order { get; set; }
+        public virtual OrderParrent? OrderParrent { get; set; }
     }
 }

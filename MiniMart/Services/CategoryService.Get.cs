@@ -41,5 +41,32 @@ namespace MiniMart.API.Services
             }
             return products;
         }
+
+        public async Task<PagingResult<GetProductResponse>> GetProductsVer2([FromQuery] GetProductRequest request, [FromRoute] int categoryId)
+        {
+            var category = await ValidateCategory(categoryId);
+            var products = await _productStoreRepository.GetQuery(ps => ps.Product.Category.Id == category.Id
+                                                                        && (!request.IsSale.HasValue
+                                                                           || (ps.Product.PriceDecreases.HasValue && ps.Product.PriceDecreases > 0)
+                                                                        ))
+                                                        .Select(ps => new GetProductResponse()
+                                                        {
+                                                            Id = ps.Product.Id,
+                                                            Name = ps.Product.Name,
+                                                            Img = ps.Product.Img,
+                                                            Description = ps.Product.Description,
+                                                            Price = ps.Product.Price,
+                                                            PriceDecreases = ps.Product.PriceDecreases,
+                                                            LK_ProductUnit = ps.Product.LK_ProductUnit,
+                                                            CategoryId = ps.Product.Category != null ? ps.Product.Category.Id : 0,
+                                                            StoreId = ps.Store.Id,
+                                                            StoreName = ps.Store.Name,
+                                                            CityId = ps.Store.Ward.District.City.Id,
+                                                            CityName = ps.Store.Ward.District.City.Name
+                                                        })
+                                                        .ToPagedListAsync(request.PageNo, request.PageSize);
+
+            return products;
+        }
     }
 }

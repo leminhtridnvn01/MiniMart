@@ -13,7 +13,7 @@ namespace MiniMart.Domain.DTOs.Orders
         {
 
         }
-        public int OrderId { get; set; }
+        public int OrderParrentId { get; set; }
         public int? Amount { get; set; }
         public string? OrderDesc { get; set; }
 

@@ -20,8 +20,8 @@ namespace MiniMart.API.Services
 
         public async Task<bool> UpdatePaymentMethodAsync(UpdatePaymentMethodRequest request)
         {
-            var order = await ValidateOrder(request.OrderId);
-            order.LK_PaymentMethod = request.LK_PaymentMethod;
+            var orderParrent = await ValidateOrderParrent(request.OrderParrentId);
+            orderParrent.LK_PaymentMethod = request.LK_PaymentMethod;
             return await _unitOfWork.SaveChangeAsync();
         }
     }

@@ -20,6 +20,11 @@ namespace MiniMart.Domain.DTOs.Products
         public LK_ProductUnit? LK_ProductUnit { get; set; }
         public int? CategoryId { get; set; }
         public IEnumerable<GetProductLocationResponse> Locations { get; set; }
+        //
+        public int? CityId { get; set; }
+        public string? CityName { get; set; }
+        public int? StoreId { get; set; }
+        public string? StoreName { get; set; }
 
         public virtual Expression<Func<Product, GetProductResponse>> GetSelection()
         {

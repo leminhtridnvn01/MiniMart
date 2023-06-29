@@ -12,6 +12,7 @@ namespace MiniMart.API.Services
     {
         private readonly ClaimsPrincipal _user;
         private readonly IOrderRepository _orderRepository;
+        private readonly IOrderParrentRepository _orderParrentRepository;
         private readonly IProductDetailRepository _productDetailRepository;
         private readonly IProductRepository _productRepository;
         private readonly IFavouriteProductRepository _favouriteProductRepository;
@@ -23,6 +24,7 @@ namespace MiniMart.API.Services
 
         public OrderService(IUnitOfWork unitOfWork
             , IOrderRepository orderRepository
+            , IOrderParrentRepository orderParrentRepository
             , IProductDetailRepository productDetailRepository
             , IProductRepository productRepository
             , IFavouriteProductRepository favouriteProductRepository
@@ -35,6 +37,7 @@ namespace MiniMart.API.Services
         {
             _user = user;
             _orderRepository = orderRepository;
+            _orderParrentRepository = orderParrentRepository;
             _productDetailRepository = productDetailRepository;
             _productRepository = productRepository;
             _favouriteProductRepository = favouriteProductRepository;
@@ -54,6 +57,17 @@ namespace MiniMart.API.Services
             }
             return order;
         }
+
+        private async Task<OrderParrent> ValidateOrderParrent(int orderParrentId)
+        {
+            var orderParrent = await _orderParrentRepository.GetAsync(x => x.Id == orderParrentId);
+            if (orderParrent == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the OrderParrent with Id equal " + orderParrentId);
+            }
+            return orderParrent;
+        }
+
         private async Task<User> ValidateUser(int userId)
         {
             var user = await _userRepository.GetAsync(x => x.Id == userId);

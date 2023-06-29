@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniMart.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using MiniMart.Infrastructure.Data;
 namespace MiniMart.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230629134351_Add-Order-parrent")]
+    partial class AddOrderparrent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,7 +365,7 @@ namespace MiniMart.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrderParrentId")
+                    b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<string>("PaymentCode")
@@ -383,7 +385,7 @@ namespace MiniMart.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderParrentId");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Payments");
                 });
@@ -894,11 +896,13 @@ namespace MiniMart.Infrastructure.Migrations
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Payment", b =>
                 {
-                    b.HasOne("MiniMart.Domain.Entities.OrderParrent", "OrderParrent")
+                    b.HasOne("MiniMart.Domain.Entities.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderParrentId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("OrderParrent");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("MiniMart.Domain.Entities.Product", b =>

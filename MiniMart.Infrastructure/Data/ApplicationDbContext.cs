@@ -31,6 +31,7 @@ namespace MiniMart.Infrastructure.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderParrent> OrderParrents { get; set; }
 
         public DbSet<ProductDetail> ProductDetails { get; set; }
         public DbSet<FavouriteProduct> FavouriteProducts { get; set; }

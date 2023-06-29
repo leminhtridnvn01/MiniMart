@@ -29,6 +29,19 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [HttpGet("get-waiting-for-pay")]
+        public async Task<List<GetOrderParrentResponse>> GetOrdersVer2([FromQuery] GetOrderRequest request)
+        {
+            try
+            {
+                return await _orderService.GetOrdersVer2(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
         [HttpGet("get-manage-order")]
         public async Task<PagingResult<GetOrderResponse>> GetMangerOrders([FromQuery] GetManagerOrderRequest request)
         {

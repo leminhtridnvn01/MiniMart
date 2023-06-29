@@ -21,6 +21,7 @@ namespace MiniMart.API.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly IOrderParrentRepository _orderParrentRepository;
         private readonly IUserRepository _userRepository;
         private readonly ClaimsPrincipal _user;
         private SortedList<String, String> _responseData = new SortedList<String, String>(new VnPayCompare());
@@ -29,6 +30,7 @@ namespace MiniMart.API.Services
             , IUnitOfWork unitOfWork
             , IPaymentRepository paymentRepository
             , IOrderRepository orderRepository
+            , IOrderParrentRepository orderParrentRepository
             , IUserRepository userRepository
             , ClaimsPrincipal user) : base(unitOfWork)
         {
@@ -36,6 +38,7 @@ namespace MiniMart.API.Services
             _httpContextAccessor = httpContextAccessor;
             _paymentRepository = paymentRepository;
             _orderRepository = orderRepository;
+            _orderParrentRepository = orderParrentRepository;
             _userRepository = userRepository;
             _user = user;
         }
@@ -53,25 +56,25 @@ namespace MiniMart.API.Services
                 throw new ArgumentNullException("Please check variables: vnp_TmnCode,vnp_HashSecret in web.config");
             }
             var dateNowTick = DateTime.UtcNow.AddHours(7).Ticks.ToString();
-            var paymentCode = "P" + "-" + dateNowTick + "-" + request.OrderId.ToString();
+            var paymentCode = "P" + "-" + dateNowTick + "-" + request.OrderParrentId.ToString();
             var isPaymentValid = await _paymentRepository.AnyAsync(_ => _.PaymentCode == paymentCode);
             if (isPaymentValid)
             {
                 throw new Exception("Payment Code is exited");
             }
             //Get payment input
-            var order = await _orderRepository.GetAsync(_ => _.Id == request.OrderId);
+            var order = await _orderRepository.GetAsync(_ => _.Id == request.OrderParrentId);
             if (order == null)
             {
-                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Order with Id equal " + request.OrderId);
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the Order with Id equal " + request.OrderParrentId);
             }
             Payment payment = new Payment();
             //Save order to db
             var userId = _user.GetUserId();
             payment.UserId = userId;
-            payment.OrderId = request.OrderId; // Giả lập mã giao dịch hệ thống merchant gửi sang VNPAY
+            payment.OrderParrentId = request.OrderParrentId; // Giả lập mã giao dịch hệ thống merchant gửi sang VNPAY
 
-            
+
 
             payment.Amount = request.Amount; // Giả lập số tiền thanh toán hệ thống merchant gửi sang VNPAY 100,000 VND
             payment.Status = false; //0: Trạng thái thanh toán "chờ thanh toán" hoặc "Pending"
@@ -87,7 +90,7 @@ namespace MiniMart.API.Services
             vnpay.AddRequestData("vnp_Version", VnPayLibrary.VERSION);
             vnpay.AddRequestData("vnp_Command", "pay");
             vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
-            vnpay.AddRequestData("vnp_Amount", (payment.Amount*100).ToString()); //Số tiền thanh toán. Số tiền không mang các ký tự phân tách thập phân, phần nghìn, ký tự tiền tệ. Để gửi số tiền thanh toán là 100,000 VND (một trăm nghìn VNĐ) thì merchant cần nhân thêm 100 lần (khử phần thập phân), sau đó gửi sang VNPAY là: 10000000
+            vnpay.AddRequestData("vnp_Amount", (payment.Amount * 100).ToString()); //Số tiền thanh toán. Số tiền không mang các ký tự phân tách thập phân, phần nghìn, ký tự tiền tệ. Để gửi số tiền thanh toán là 100,000 VND (một trăm nghìn VNĐ) thì merchant cần nhân thêm 100 lần (khử phần thập phân), sau đó gửi sang VNPAY là: 10000000
             if (request.Bank != LK_BankType.None)
             {
                 vnpay.AddRequestData("vnp_BankCode", request.Bank.ToString());
@@ -203,35 +206,42 @@ namespace MiniMart.API.Services
 
             var paymentConfigInfo = _configuration.GetSection("Payment");
             var vnp_HashSecret = paymentConfigInfo.GetSection("vnp_HashSecret").Value;
-            
-            var orderId = Convert.ToInt32(vnp_OrderInfo.Split("-").ElementAt(2));
-            var order = await ValidateOrder(orderId);
+
+            var orderParrentId = Convert.ToInt32(vnp_OrderInfo.Split("-").ElementAt(2));
+            var orderParrent = await ValidateOrderParrent(orderParrentId);
             bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, vnp_HashSecret);
             if (checkSignature)
             {
                 if (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00")
                 {
-                    var payment = await ValidatePayment(vnp_OrderInfo, order.Id);
+                    orderParrent.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
+                    orderParrent.IsPaid = true;
+                    var payment = await ValidatePayment(vnp_OrderInfo, orderParrent.Id);
                     payment.Status = true;
                     payment.TranCode = vnp_TransactionNo;
-                    order.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
-                    foreach (var item in order.ProductDetails)
+                    foreach (var order in orderParrent.Orders)
                     {
-                        var productStore = item.Product.ProductStores.FirstOrDefault(x => x.Store.Id == order.Store.Id);
-                        productStore.Quantity = productStore.Quantity - item.Quantity;
-                    }                    
+                        order.IsPaid = true;
+                        order.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
+                        foreach (var item in order.ProductDetails)
+                        {
+                            var productStore = item.Product.ProductStores.FirstOrDefault(x => x.Store.Id == order.Store.Id);
+                            productStore.Quantity = productStore.Quantity - item.Quantity;
+                        }
 
-                    await _unitOfWork.SaveChangeAsync();
+                        await _unitOfWork.SaveChangeAsync();
 
-                    Console.WriteLine("Giao dịch được thực hiện thành công. Cảm ơn quý khách đã sử dụng dịch vụ");
-                    Console.WriteLine("Thanh toán thành công, OrderId={0}", orderId);
-                    Console.WriteLine("Mã giao dịch thanh toán:" + vnp_OrderInfo);
-                    Console.WriteLine("Số tiền thanh toán (VND):" + vnp_Amount.ToString());
-                    Console.WriteLine("Ngân hàng thanh toán:" + vnp_BankCode);
+                        Console.WriteLine("Giao dịch được thực hiện thành công. Cảm ơn quý khách đã sử dụng dịch vụ");
+                        Console.WriteLine("Thanh toán thành công, OrderParrentId={0}", orderParrentId);
+                        Console.WriteLine("Mã giao dịch thanh toán:" + vnp_OrderInfo);
+                        Console.WriteLine("Số tiền thanh toán (VND):" + vnp_Amount.ToString());
+                        Console.WriteLine("Ngân hàng thanh toán:" + vnp_BankCode);
+
+                    }
                 }
                 else
                 {
-                    throw new HttpException(HttpStatusCode.BadRequest, "Fail to complete the Payment with OrderId: " + orderId);
+                    throw new HttpException(HttpStatusCode.BadRequest, "Fail to complete the Payment with OrderParrentId: " + orderParrentId);
                 }
             }
             else
@@ -242,10 +252,10 @@ namespace MiniMart.API.Services
             return true;
         }
 
-        private async Task<Payment> ValidatePayment(string vnp_OrderInfo, int orderId)
+        private async Task<Payment> ValidatePayment(string vnp_OrderInfo, int orderParrentId)
         {
-            var payment = await _paymentRepository.GetQuery(_ => _.PaymentCode == vnp_OrderInfo 
-                                                                 && _.OrderId == orderId 
+            var payment = await _paymentRepository.GetQuery(_ => _.PaymentCode == vnp_OrderInfo
+                                                                 && _.OrderParrentId == orderParrentId
                                                                  && _.Status == false)
                                                   .OrderByDescending(_ => _.CreateOn)
                                                   .FirstOrDefaultAsync();
@@ -264,6 +274,16 @@ namespace MiniMart.API.Services
                 throw new HttpException(HttpStatusCode.NotFound, "Could not found the Order with Id equal " + orderId);
             }
             return order;
+        }
+
+        private async Task<OrderParrent> ValidateOrderParrent(int orderParrentId)
+        {
+            var orderParrent = await _orderParrentRepository.GetAsync(x => x.Id == orderParrentId);
+            if (orderParrent == null)
+            {
+                throw new HttpException(HttpStatusCode.NotFound, "Could not found the OrderParrent with Id equal " + orderParrentId);
+            }
+            return orderParrent;
         }
     }
 }

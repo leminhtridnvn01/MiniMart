@@ -215,6 +215,11 @@ namespace MiniMart.API.Services
                     payment.Status = true;
                     payment.TranCode = vnp_TransactionNo;
                     order.LK_OrderStatus = LK_OrderStatus.WaitingForDelivery;
+                    foreach (var item in order.ProductDetails)
+                    {
+                        var productStore = item.Product.ProductStores.FirstOrDefault(x => x.Store.Id == order.Store.Id);
+                        productStore.Quantity = productStore.Quantity - item.Quantity;
+                    }                    
 
                     await _unitOfWork.SaveChangeAsync();
 

@@ -8,6 +8,8 @@ namespace MiniMart.Domain.DTOs.Products
         {
 
         }
+
+        public string? Search { get; set; }
         public int StoreId { get; set; }
     }
 }

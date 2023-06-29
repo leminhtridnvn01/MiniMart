@@ -77,7 +77,11 @@ namespace MiniMart.API.Services
         public async Task<PagingResult<GetProductManagerResponse>> GetStoreProduct(GetProductManagerRequest request)
         {
             var store = await ValidateStore(request.StoreId);
-            var products = await _productStoreRepository.GetQuery(ps => ps.Store.Id == store.Id)
+            var products = await _productStoreRepository.GetQuery(ps => ps.Store.Id == store.Id
+                                                                        && (request.Search.IsNullOrEmpty() 
+                                                                            || ps.Product.Id.ToString() == request.Search
+                                                                            || ps.Product.Name.Contains(request.Search)
+                                                                        ))
                                                         .OrderByDescending(ps => ps.CreateOn)
                                                         .Select(ps => new GetProductManagerResponse()
                                                         {

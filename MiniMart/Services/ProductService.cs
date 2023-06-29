@@ -95,5 +95,17 @@ namespace MiniMart.API.Services
             }
             return (product, store);
         }
+
+         private async Task<(Product, Store)> ValidateProductStore(int productId, int storeId)
+        {
+            var product = await ValidateProduct(productId);
+            var store = await ValidateStore(storeId);
+            var isValid = await _productStoreRepository.AnyAsync(x => x.Store.Id == store.Id && x.Product.Id == product.Id);
+            if (!isValid)
+            {
+                throw new HttpException(HttpStatusCode.BadRequest, "This product is currently unvailable at this store.");
+            }
+            return (product, store);
+        }
     }
 }

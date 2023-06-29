@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniMart.API.Exceptions;
+using MiniMart.API.Extensions;
+using MiniMart.Domain.Base.BaseDTOs;
 using MiniMart.Domain.DTOs.Strategies;
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;
 using MiniMart.Infrastructure.Data.Repositories;
 using System.Net;
+using System.Security.Claims;
 
 namespace MiniMart.API.Services
 {
@@ -16,12 +19,14 @@ namespace MiniMart.API.Services
         private readonly IProductRepository _productRepository;
         private readonly IStoreRepository _storeRepository;
         private readonly IProductStoreRepository _productStoreRepository;
+        private readonly ClaimsPrincipal _user;
 
         public StrategyService(IStrategyRepository strategyRepository
             , IStrategyDetailRepository strategyDetailRepository
             , IProductRepository productRepository
             , IStoreRepository storeRepository
             , IProductStoreRepository productStoreRepository
+            , ClaimsPrincipal user
             , IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _strategyRepository = strategyRepository;
@@ -29,6 +34,7 @@ namespace MiniMart.API.Services
             _productRepository = productRepository;
             _storeRepository = storeRepository;
             _productStoreRepository = productStoreRepository;
+            _user = user;
         }
 
         private async Task<Product> ValidateProduct(int productId)
@@ -122,6 +128,38 @@ namespace MiniMart.API.Services
             Console.WriteLine("Da update thanh cong");
             await _unitOfWork.CommitTransaction();
             return await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task<PagingResult<GetStrategyResponse>> GetManagerStrategy (GetStrategyRequest request)
+        {
+            var a =  _user.GetUserId();
+            var strategies = await _strategyRepository.GetQuery(x => request.StartDate <= x.ActivatedDateFrom.Value 
+                                                                     &&  request.EndDate >= x.ActivatedDateTo.Value
+                                                                     && x.StrategyDetails.Single().Store.Manager.UserId == _user.GetUserId() )
+                                                        .Select(x => new GetStrategyResponse()
+                                                        {
+                                                            Name = x.Name,
+                                                            Description = x.Description,
+                                                            ActivatedDateFrom = x.ActivatedDateFrom,
+                                                            ActivatedDateTo = x.ActivatedDateTo,
+                                                            PercentageDecrease = x.PercentageDecrease,
+                                                            LK_ActivatedStrategyStatus = x.LK_ActivatedStrategyStatus,
+                                                            Products = x.StrategyDetails.Select(sd => 
+                                                                new GetStrategyProductResponse()
+                                                                {
+                                                                    ProductId = sd.ProductId,
+                                                                    ProductName = sd.Product.Name,
+                                                                    StoreId = sd.StoreId,
+                                                                    StoreName = sd.Store.Name,
+                                                                    PercentageDecrease = sd.PercentageDecreases,
+                                                                    OriginalPrice = sd.Product.Price,
+                                                                    OriginalPriceDecreases = sd.Product.PriceDecreases,
+                                                                    CurrentPrice = sd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == sd.StoreId).Price,
+                                                                    CurrentPriceDecreases = sd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == sd.StoreId).PriceDecreases,
+                                                                })
+                                                            })
+                                                        .ToPagedListAsync(request.PageNo, request.PageSize);
+            return strategies;                  
         }
     }
 }

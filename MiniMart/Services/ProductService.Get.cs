@@ -73,5 +73,32 @@ namespace MiniMart.API.Services
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
             return products;
         }
+
+        public async Task<PagingResult<GetProductManagerResponse>> GetStoreProduct(GetProductManagerRequest request)
+        {
+            var store = await ValidateStore(request.StoreId);
+            var products = await _productStoreRepository.GetQuery(ps => ps.Store.Id == store.Id
+                                                                        && (request.Search.IsNullOrEmpty() 
+                                                                            || ps.Product.Id.ToString() == request.Search
+                                                                            || ps.Product.Name.Contains(request.Search)
+                                                                        ))
+                                                        .OrderByDescending(ps => ps.CreateOn)
+                                                        .Select(ps => new GetProductManagerResponse()
+                                                        {
+                                                            ProductId = ps.Product.Id,
+                                                            OriginalPrice = ps.Product.Price,
+                                                            OriginalPriceDecreases = ps.Product.PriceDecreases,
+                                                            CurrentPrice = ps.PriceDecreases,
+                                                            CurrentPriceDecreases = ps.PriceDecreases,
+                                                            Name = ps.Product.Name ?? "",
+                                                            Description = ps.Product.Description ?? "",
+                                                            Quantity = ps.Quantity.HasValue ? ps.Quantity.Value : 0,
+                                                            CategoryId = ps.Product.Category.Id,
+                                                            CategoryName = ps.Product.Category.Name,
+                                                            LK_ProductUnit = ps.Product.LK_ProductUnit
+                                                        })
+                                                        .ToPagedListAsync(request.PageNo, request.PageSize);
+            return products;
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace MiniMart.Domain.Entities
         public int? DeliveryFee { get; set; }
         public int? TotalPrice { get; set; }
         public bool? IsPaid { get; set; }
+        public bool? IsApproved { get; set; }
         public LK_OrderStatus? LK_OrderStatus { get; set; }
         public LK_PaymentMethod? LK_PaymentMethod { get; set; }
         public LK_OrderType? LK_OrderType { get; set; }

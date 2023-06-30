@@ -1,4 +1,5 @@
-﻿using MiniMart.API.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
+using MiniMart.API.Exceptions;
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;
@@ -104,6 +105,25 @@ namespace MiniMart.API.Services
             if (!isValid)
             {
                 throw new HttpException(HttpStatusCode.BadRequest, "This product is currently unvailable at this store.");
+            }
+            return (product, store);
+        }
+
+        private async Task<(Product, Store)> ValidateProductInStoreWhenAddToCart(int productId, int storeId, int quantity)
+        {
+            var product = await ValidateProduct(productId);
+            var store = await ValidateStore(storeId);
+            var productInStore = await _productStoreRepository.GetQuery(x => x.Store.Id == store.Id && x.Product.Id == product.Id && x.Quantity > 0).FirstOrDefaultAsync();
+            //var isValidProductInStore = await _productStoreRepository.AnyAsync(x => x.Store.Id == store.Id && x.Product.Id == product.Id && x.Quantity > 0);
+            if (productInStore == null)
+            {
+                throw new HttpException(HttpStatusCode.BadRequest, "This product is currently out of stock at this store.");
+            }
+            var productInCart = await _favouriteProductRepository.GetQuery(x => x.Product.Id == product.Id && x.Store.Id == store.Id)
+                                                                 .FirstOrDefaultAsync();
+            if(productInCart != null && quantity >= 0 && productInCart.Quantity + quantity > productInStore.Quantity)
+            {
+                throw new HttpException(HttpStatusCode.BadRequest, "This product in your cart is currently out of stock at this store.");
             }
             return (product, store);
         }

@@ -20,8 +20,10 @@ namespace MiniMart.Domain.DTOs.Orders
         public string UserName { get; set; }
         public string DeliveryAddress { get; set; }
         public string ContactPhoneNumber { get; set; }
+        public DateTime? PickupTime { get; set; }
         public int? OrderType { get; set; }
         public int? PaymentMethod { get; set; }
+        public bool? IsApproved { get; set; } = false;
         public IEnumerable<GetProductInCartResponse> Products { get; set; }
     }
 }

@@ -47,6 +47,8 @@ namespace MiniMart.API.Services
                                              ContactPhoneNumber = x.User.PhoneNumber ?? "",
                                              OrderType = (int)x.LK_OrderType.Value,
                                              PaymentMethod = (int)x.LK_PaymentMethod.Value,
+                                             PickupTime = x.PickupTimeFrom,
+                                             IsApproved = x.IsApproved.HasValue ? x.IsApproved.Value : false,
                                              Products = x.ProductDetails.Select(pd => new GetProductInCartResponse()
                                              {
                                                  Id = pd.Product.Id,
@@ -96,6 +98,7 @@ namespace MiniMart.API.Services
                                                                              ContactPhoneNumber = x.User.PhoneNumber ?? "",
                                                                              OrderType = (int)x.LK_OrderType.Value,
                                                                              PaymentMethod = (int)x.LK_PaymentMethod.Value,
+                                                                             PickupTime = x.PickupTimeFrom,
                                                                              Products = x.ProductDetails.Select(pd => new GetProductInCartResponse()
                                                                              {
                                                                                  Id = pd.Product.Id,
@@ -137,6 +140,8 @@ namespace MiniMart.API.Services
                                              ContactPhoneNumber = x.User.PhoneNumber ?? "",
                                              OrderType = (int)x.LK_OrderType.Value,
                                              PaymentMethod = (int)x.LK_PaymentMethod.Value,
+                                             PickupTime = x.PickupTimeFrom,
+                                             IsApproved = x.IsApproved.HasValue ? x.IsApproved.Value : false,
                                              Products = x.ProductDetails.Select(pd => new GetProductInCartResponse()
                                              {
                                                  Id = pd.Product.Id,

@@ -133,12 +133,51 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [HttpPut("edit-pickup-time")]
+        public async Task<bool> UpdatePickupTimeAsync(UpdatePickupTimeRequest request)
+        {
+            try
+            {
+                return await _orderService.UpdatePickupTimeAsync(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
         [HttpPut("edit-payment-method")]
         public async Task<bool> UpdatePaymentMethodAsync(UpdatePaymentMethodRequest request)
         {
             try
             {
                 return await _orderService.UpdatePaymentMethodAsync(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
+        [HttpGet("approve-order/{orderId:int}")]
+        public async Task<bool> ApproveOrderAsync([FromRoute]int orderId)
+        {
+            try
+            {
+                return await _orderService.ApproveOrderAsync(orderId);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
+        [HttpPut("update-order-status")]
+        public async Task<bool> UpdateOrderStatusAsync(UpdateOrderStatusRequest request)
+        {
+            try
+            {
+                return await _orderService.UpdateOrderStatusAsync(request);
             }
             catch (Exception e)
             {

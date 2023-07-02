@@ -65,7 +65,7 @@ namespace MiniMart.API.Services
         public async Task<bool> AddProductToCart(AddProductToCartRequest request)
         {
             var user = await ValidateUser(_user.GetUserId());
-            var (product, store) = await ValidateProductInStore(request.ProductId, request.StoreId);
+            var (product, store) = await ValidateProductInStoreWhenAddToCart(request.ProductId, request.StoreId, request.Quantity);
             var isFavouriteProductExisted = await _favouriteProductRepository.AnyAsync(x => x.Product.Id == product.Id && x.Store.Id == store.Id && x.User.Id == user.Id);
             if (isFavouriteProductExisted)
             {

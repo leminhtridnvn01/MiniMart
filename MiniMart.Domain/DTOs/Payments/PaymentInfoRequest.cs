@@ -33,7 +33,7 @@ namespace MiniMart.Domain.DTOs.Payments
             this.ShippingTaxCode = string.Empty;
             this.ShippingBillType = BillType.I;
         }
-        public int OrderId { get; set; }
+        public int OrderParrentId { get; set; }
         public int Amount { get; set; }
         public string OrderDesc { get; set; }
         public LK_LanguageType Language { get; set; }

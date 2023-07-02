@@ -32,6 +32,7 @@ namespace MiniMart.API.Controllers
             try
             {
                 return await _categoryService.GetProducts(request, categoryId);
+                //return await _categoryService.GetProductsVer2(request, categoryId);
             }
             catch (Exception e)
             {

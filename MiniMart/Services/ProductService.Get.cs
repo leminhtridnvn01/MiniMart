@@ -51,6 +51,19 @@ namespace MiniMart.API.Services
                                                                   ))
                                                    .Select(new GetProductResponse().GetSelection())
                                                    .ToPagedListAsync(request.PageNo, request.PageSize);
+            foreach (var product in products.Data)
+            {
+                product.Locations = await _productStoreRepository.GetQuery(x => x.Product.Id == product.Id && x.Quantity > 0)
+                                                          .Select(new StoreResponse().GetSelection())
+                                                          .GroupBy(x => x.CityId)
+                                                          .Select(x => new GetProductLocationResponse
+                                                          {
+                                                              CityId = x.Key,
+                                                              CityName = x.FirstOrDefault().CityName,
+                                                              Stores = x.ToList()
+                                                          })
+                                                          .ToListAsync();
+            }
             return products;
         }
 

@@ -14,7 +14,7 @@ namespace MiniMart.Domain.DTOs.Orders
 
         }
 
-        public int OrderId { get; set; }
+        public int OrderParrentId { get; set; }
         public LK_PaymentMethod LK_PaymentMethod { get; set; }
     }
 }

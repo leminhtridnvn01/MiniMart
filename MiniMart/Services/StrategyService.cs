@@ -79,6 +79,8 @@ namespace MiniMart.API.Services
                     ActivatedDateFrom = request.ActivatedDateFrom,
                     ActivatedDateTo = request.ActivatedDateTo,
                     PercentageDecrease = request.PercentageDecrease,
+                    Name = request.Name,
+                    Description = request.Description,
                 };
 
                 foreach (var item in request.Products)
@@ -134,8 +136,7 @@ namespace MiniMart.API.Services
         {
             var a =  _user.GetUserId();
             var strategies = await _strategyRepository.GetQuery(x => request.StartDate <= x.ActivatedDateFrom.Value 
-                                                                     &&  request.EndDate >= x.ActivatedDateTo.Value
-                                                                     && x.StrategyDetails.Single().Store.Manager.UserId == _user.GetUserId() )
+                                                                     &&  request.EndDate >= x.ActivatedDateTo.Value)
                                                         .Select(x => new GetStrategyResponse()
                                                         {
                                                             Name = x.Name,

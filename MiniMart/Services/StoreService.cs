@@ -11,15 +11,18 @@ namespace MiniMart.API.Services
     {
         private readonly IStoreRepository _storeRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ClaimsPrincipal _user;
 
         public StoreService(IUnitOfWork unitOfWork
             , IStoreRepository storeRepository
             , IOrderRepository orderRepository
+            , IUserRepository userRepository
             , ClaimsPrincipal user) : base(unitOfWork)
         {
             _storeRepository = storeRepository;
             _orderRepository = orderRepository;
+            _userRepository = userRepository;
             _user = user;
         }
 

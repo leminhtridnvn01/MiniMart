@@ -51,7 +51,7 @@ namespace MiniMart.Domain.DTOs.Products
                 ProductName = _.Product.Name,
                 Price = _.Price,
                 PriceDecreases = _.PriceDecreases,
-                Quantity = _.Quantity.Value
+                Quantity = _.Quantity.HasValue ? _.Quantity.Value : 0,
             };
         }
     }

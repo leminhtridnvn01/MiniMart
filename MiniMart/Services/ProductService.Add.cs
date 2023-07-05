@@ -87,7 +87,16 @@ namespace MiniMart.API.Services
                 var category = await ValidateCategory(request.CategoryId);
                 var (product, store) = await ValidateProductStore(request.ProductId, request.StoreId);
 
-                product.Update(request.Name, request.Description, request.Price, request.PriceDecreases, category, request.LK_ProductUnit.Value, request.Img, request.Quantity, request.StoreId);
+                product.Update(request.Name, 
+                               request.Description, 
+                               request.Price,
+                               request.PriceDecreases, 
+                               request.CurrentPriceDecreases,
+                               category, 
+                               request.LK_ProductUnit.Value, 
+                               request.Img, 
+                               request.Quantity,
+                               request.StoreId);
 
                 await _unitOfWork.SaveChangeAsync();
                 return await _unitOfWork.CommitTransaction();;

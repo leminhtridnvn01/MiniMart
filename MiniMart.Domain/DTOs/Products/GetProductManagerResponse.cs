@@ -19,6 +19,8 @@ namespace MiniMart.Domain.DTOs.Products
         public int? CurrentPriceDecreases { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
+        public int? StrategyId { get; set; }
+        public string StrategyName { get; set; }
         public LK_ProductUnit? LK_ProductUnit { get; set; }
     }
 }

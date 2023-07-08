@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Azure.Core;
+using MediatR;
 using MiniMart.API.Exceptions;
 using MiniMart.API.Extensions;
 using MiniMart.Domain.DTOs.Products;
@@ -28,6 +29,15 @@ namespace MiniMart.API.Services
 
                 await _productRepository.InsertAsync(product);
                 await _unitOfWork.SaveChangeAsync();
+
+                if (request.Img != null)
+                {
+                    var fileName = product.Id.ToString() + "-" + product.Name + "-" + DateTime.UtcNow.AddHours(7).Ticks.ToString();
+                    product.Img = fileName;
+                    var blob = _azureBlobClient.GetBlobClient(fileName);
+                    var fileStream = request.Img.OpenReadStream();
+                    await blob.UploadAsync(fileStream);
+                }
 
                 foreach (var storeId in request.StoreIds)
                 {
@@ -87,6 +97,15 @@ namespace MiniMart.API.Services
                 var category = await ValidateCategory(request.CategoryId);
                 var (product, store) = await ValidateProductStore(request.ProductId, request.StoreId);
 
+                if (request.Img != null)
+                {
+                    var fileName = product.Id.ToString() + "-" + product.Name + "-" + DateTime.UtcNow.AddHours(7).Ticks.ToString();
+                    product.Img = fileName;
+                    var blob = _azureBlobClient.GetBlobClient(fileName);
+                    var fileStream = request.Img.OpenReadStream();
+                    await blob.UploadAsync(fileStream);
+                }
+
                 product.Update(request.Name, 
                                request.Description, 
                                request.Price,
@@ -94,7 +113,6 @@ namespace MiniMart.API.Services
                                request.CurrentPriceDecreases,
                                category, 
                                request.LK_ProductUnit.Value, 
-                               request.Img, 
                                request.Quantity,
                                request.StoreId);
 

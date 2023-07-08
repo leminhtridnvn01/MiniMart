@@ -25,7 +25,8 @@ namespace MiniMart.API.Jobs
                 Console.WriteLine("-----------PriceDecreaseStrategyJob-----------");
                 var strategies = await _strategyRepository.GetQuery(_ => _.ActivatedDateFrom.Value <= DateTime.Now
                                                                          && _.ActivatedDateTo.Value >= DateTime.Now
-                                                                         && _.LK_ActivatedStrategyStatus == null)
+                                                                         && _.LK_ActivatedStrategyStatus == null
+                                                                         || _.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
                                                            .ToListAsync();
                 if (strategies.Count() > 0)
                 {

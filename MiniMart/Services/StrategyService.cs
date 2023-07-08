@@ -99,6 +99,31 @@ namespace MiniMart.API.Services
 
         }
 
+        public async Task<bool> AddProductStoreToStrategy(AddProductStoreToStrategyRequest request)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransaction();
+                var strategy = await _strategyRepository.GetAsync(x => x.Id == request.StrategyId);
+                if (strategy == null)
+                {
+                    throw new HttpException(HttpStatusCode.BadGateway, "Invalid Strategy with ID: " + request.StrategyId);
+                }
+                var (product, store) = await ValidateProductInStore(request.ProductId, request.StoreId);
+
+                var strategyDetail = await _strategyDetailRepository.GetQuery(x => x.StoreId == store.Id && x.ProductId == product.Id).ToListAsync();
+                await _strategyDetailRepository.RemoveRangeAsync(strategyDetail);
+                await _unitOfWork.SaveChangeAsync();
+                strategy.AddProductToStrategy(product, store, null);
+                return await _unitOfWork.CommitTransaction();
+            }
+            catch (Exception e)
+            {
+                await _unitOfWork.RollbackTransaction();
+                throw new HttpException(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
         public async Task<bool> Test()
         {
             await _unitOfWork.BeginTransaction();
@@ -132,20 +157,21 @@ namespace MiniMart.API.Services
             return await _unitOfWork.SaveChangeAsync();
         }
 
-        public async Task<PagingResult<GetStrategyResponse>> GetManagerStrategy (GetStrategyRequest request)
+        public async Task<PagingResult<GetStrategyResponse>> GetManagerStrategy(GetStrategyRequest request)
         {
-            var a =  _user.GetUserId();
-            var strategies = await _strategyRepository.GetQuery(x => request.StartDate <= x.ActivatedDateFrom.Value 
-                                                                     &&  request.EndDate >= x.ActivatedDateTo.Value)
+            var a = _user.GetUserId();
+            var strategies = await _strategyRepository.GetQuery(x => request.StartDate <= x.ActivatedDateFrom.Value
+                                                                     && request.EndDate >= x.ActivatedDateTo.Value)
                                                         .Select(x => new GetStrategyResponse()
                                                         {
+                                                            StrategyId = x.Id,
                                                             Name = x.Name,
                                                             Description = x.Description,
                                                             ActivatedDateFrom = x.ActivatedDateFrom,
                                                             ActivatedDateTo = x.ActivatedDateTo,
                                                             PercentageDecrease = x.PercentageDecrease,
                                                             LK_ActivatedStrategyStatus = x.LK_ActivatedStrategyStatus,
-                                                            Products = x.StrategyDetails.Select(sd => 
+                                                            Products = x.StrategyDetails.Select(sd =>
                                                                 new GetStrategyProductResponse()
                                                                 {
                                                                     ProductId = sd.ProductId,
@@ -158,9 +184,9 @@ namespace MiniMart.API.Services
                                                                     CurrentPrice = sd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == sd.StoreId).Price,
                                                                     CurrentPriceDecreases = sd.Product.ProductStores.FirstOrDefault(ps => ps.Store.Id == sd.StoreId).PriceDecreases,
                                                                 })
-                                                            })
+                                                        })
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
-            return strategies;                  
+            return strategies;
         }
     }
 }

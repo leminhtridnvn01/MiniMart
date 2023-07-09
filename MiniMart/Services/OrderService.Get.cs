@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Storage.Sas;
+using Microsoft.EntityFrameworkCore;
 using MiniMart.API.Extensions;
 using MiniMart.Domain.Base.BaseDTOs;
 using MiniMart.Domain.DTOs.Locations;
@@ -30,7 +31,7 @@ namespace MiniMart.API.Services
 
         public async Task<PagingResult<GetOrderResponse>> GetOrders(GetOrderRequest request)
         {
-            return await _orderRepository.GetQuery(x => x.User.Id == _user.GetUserId()
+            var orders = await _orderRepository.GetQuery(x => x.User.Id == _user.GetUserId()
                                                         && request.OrderStatus.HasValue 
                                                            ? x.LK_OrderStatus.Value == request.OrderStatus.Value
                                                            : true)
@@ -66,6 +67,15 @@ namespace MiniMart.API.Services
                                              })
                                          })
                                          .ToPagedListAsync(request.PageNo, request.PageSize);
+            foreach (var order in orders.Data)
+            {
+                foreach(var product in order.Products)
+                {
+                    var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                    product.Img = imgUri.ToString();
+                }
+            }
+            return orders;
         }
 
         public async Task<List<GetOrderParrentResponse>> GetOrdersVer2(GetOrderRequest request)
@@ -117,6 +127,17 @@ namespace MiniMart.API.Services
                                                                          })
                                                                      })
                                                              .ToListAsync();
+            foreach (var orderParrent in orderParrents)
+            {
+                foreach (var order in orderParrent.Orders)
+                {
+                    foreach (var product in order.Products)
+                    {
+                        var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                        product.Img = imgUri.ToString();
+                    }
+                }
+            }
             return orderParrents;
         }
 
@@ -161,6 +182,10 @@ namespace MiniMart.API.Services
                                          .ToPagedListAsync(request.PageNo, request.PageSize);
         }
 
-        
+        public async Task<Uri> GetSasUriAsync(string fileName, BlobSasPermissions permissions, DateTimeOffset expiresOn)
+        {
+            var blob = _azureBlobClient.GetBlobClient(fileName);
+            return blob.GenerateSasUri(permissions, expiresOn);
+        }
     }
 }

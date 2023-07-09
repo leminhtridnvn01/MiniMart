@@ -14,6 +14,8 @@ namespace MiniMart.API.Services
         public async Task<GetProductResponse> GetProduct(int categoryId, int productId)
         {
             var product = await ValidateProduct(categoryId, productId);
+            var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+            product.Img = imgUri.ToString();
             return new GetProductResponse().GetMap(product);
         }
 
@@ -82,6 +84,11 @@ namespace MiniMart.API.Services
                                                                          || (ps.Product.PriceDecreases.HasValue && ps.Product.PriceDecreases.Value > 0))
                                                         .Select(new GetSaleProductResponse().GetSelection())
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
+            foreach (var product in products.Data)
+            {
+                var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                product.Img = imgUri.ToString();
+            }
             return products;
         }
 
@@ -129,12 +136,12 @@ namespace MiniMart.API.Services
                                                             StrategyName = ps.Product.StrategyDetails.Any(sd => sd.ProductId == ps.Product.Id
                                                                                                                 && sd.StoreId == ps.Store.Id
                                                                                                                 && sd.Strategy.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
-                                                                           ? ps.Product.StrategyDetails.FirstOrDefault(sd => sd.ProductId == ps.Product.Id 
+                                                                           ? ps.Product.StrategyDetails.FirstOrDefault(sd => sd.ProductId == ps.Product.Id
                                                                                                                              && sd.StoreId == ps.Store.Id
                                                                                                                              && sd.Strategy.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
                                                                                                        .Strategy.Name ?? "Tesing Promotion"
                                                                            : null
-                                                        })  
+                                                        })
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
             return products;
         }

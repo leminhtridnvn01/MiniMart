@@ -1,4 +1,5 @@
-﻿using MiniMart.API.Exceptions;
+﻿using Azure.Storage.Blobs;
+using MiniMart.API.Exceptions;
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;
@@ -12,16 +13,20 @@ namespace MiniMart.API.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
         private readonly IProductStoreRepository _productStoreRepository;
+        private readonly BlobContainerClient _azureBlobClient;
 
         public CategoryService(IUnitOfWork unitOfWork
             , ICategoryRepository categoryRepository
             , IProductRepository productRepository
+            , IConfiguration configuration
             , IProductStoreRepository productStoreRepository
         ) : base(unitOfWork )
         {
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;
             _productStoreRepository = productStoreRepository;
+            _azureBlobClient = new BlobContainerClient(configuration.GetSection("BlobStorageConnectionString").Value, configuration.GetSection("BlobStorageContainerName").Value);
+
         }
 
         private async Task<Category> ValidateCategory(int categoryId)

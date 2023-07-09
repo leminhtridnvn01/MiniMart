@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Storage.Sas;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniMart.API.Extensions;
 using MiniMart.Domain.Base.BaseDTOs;
@@ -38,6 +39,8 @@ namespace MiniMart.API.Services
                                                               Stores = x.ToList()
                                                           })
                                                           .ToListAsync();
+                var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                product.Img = imgUri.ToString();
             }
             return products;
         }
@@ -67,6 +70,12 @@ namespace MiniMart.API.Services
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
 
             return products;
+        }
+
+        public async Task<Uri> GetSasUriAsync(string fileName, BlobSasPermissions permissions, DateTimeOffset expiresOn)
+        {
+            var blob = _azureBlobClient.GetBlobClient(fileName);
+            return blob.GenerateSasUri(permissions, expiresOn);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MiniMart.API.Exceptions;
+﻿using Azure.Storage.Blobs;
+using MiniMart.API.Exceptions;
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
 using MiniMart.Domain.Interfaces.Repositories;
@@ -21,6 +22,7 @@ namespace MiniMart.API.Services
         private readonly IUserRepository _userRepository;
         private readonly IProductStoreRepository _productStoreRepository;
         private readonly PaymentService _paymentService;
+        private readonly BlobContainerClient _azureBlobClient;
 
         public OrderService(IUnitOfWork unitOfWork
             , IOrderRepository orderRepository
@@ -33,6 +35,7 @@ namespace MiniMart.API.Services
             , IUserRepository userRepository
             , IProductStoreRepository productStoreRepository
             , PaymentService paymentService
+            , IConfiguration configuration
             , ClaimsPrincipal user) : base(unitOfWork)
         {
             _user = user;
@@ -46,6 +49,7 @@ namespace MiniMart.API.Services
             _userRepository = userRepository;
             _productStoreRepository = productStoreRepository;
             _paymentService = paymentService;
+            _azureBlobClient = new BlobContainerClient(configuration.GetSection("BlobStorageConnectionString").Value, configuration.GetSection("BlobStorageContainerName").Value);
         }
 
         private async Task<Order> ValidateOrder(int orderId)

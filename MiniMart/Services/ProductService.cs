@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
 using MiniMart.API.Exceptions;
 using MiniMart.Domain.Entities;
 using MiniMart.Domain.Interfaces;
@@ -16,6 +17,7 @@ namespace MiniMart.API.Services
         private readonly IProductStoreRepository _productStoreRepository;
         private readonly IStoreRepository _storeRepository;
         private readonly IFavouriteProductRepository _favouriteProductRepository;
+        private readonly BlobContainerClient _azureBlobClient;
         private readonly ClaimsPrincipal _user;
 
         public ProductService(IUnitOfWork unitOfWork
@@ -23,8 +25,9 @@ namespace MiniMart.API.Services
             , IProductRepository productRepository
             , ICategoryRepository categoryRepository
             , IProductStoreRepository productStoreRepository
-            , IStoreRepository storeRepository
             , IFavouriteProductRepository favouriteProductRepository
+            , IStoreRepository storeRepository
+            , IConfiguration configuration
             , ClaimsPrincipal user) : base(unitOfWork)
         {
             _userRepository = userRepository;
@@ -33,6 +36,7 @@ namespace MiniMart.API.Services
             _productStoreRepository = productStoreRepository;
             _storeRepository = storeRepository;
             _favouriteProductRepository = favouriteProductRepository;
+            _azureBlobClient = new BlobContainerClient(configuration.GetSection("BlobStorageConnectionString").Value, configuration.GetSection("BlobStorageContainerName").Value);
             _user = user;
         }
         private async Task<User> ValidateUser(int userId)

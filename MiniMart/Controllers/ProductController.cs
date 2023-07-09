@@ -118,7 +118,7 @@ namespace MiniMart.API.Controllers
 
         #region Post
         [HttpPost]
-        public async Task<bool> CreateProduct(CreateProductToOrderRequest request)
+        public async Task<bool> CreateProduct([FromForm] CreateProductToOrderRequest request)
         {
             try
             {
@@ -176,7 +176,7 @@ namespace MiniMart.API.Controllers
 
         #region Put
         [HttpPut]
-        public async Task<bool> EditProduct(EditProductToOrderRequest request)
+        public async Task<bool> EditProduct([FromForm] EditProductToOrderRequest request)
         {
             try
             {

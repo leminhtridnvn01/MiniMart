@@ -27,6 +27,19 @@ namespace MiniMart.API.Controllers
             }
         }
 
+        [HttpPost("add-product-store-to-strategy")]
+        public async Task<bool> AddProductStoreToStrategy(AddProductStoreToStrategyRequest request)
+        {
+            try
+            {
+                return await _strategyService.AddProductStoreToStrategy(request);
+            }
+            catch (Exception e)
+            {
+                throw e ?? new Exception("An error occured");
+            }
+        }
+
         [HttpGet]
         public async Task<bool> Test()
         {

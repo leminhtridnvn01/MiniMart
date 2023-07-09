@@ -30,10 +30,10 @@ namespace MiniMart.Domain.Entities
                                      : this.PercentageDecrease ?? 0;
                 if (percentageDecreases > 0)
                 {
-                    if (this.PercentageDecrease.HasValue && this.PercentageDecrease > 0)
-                    {
-                        strategyDetail.Product.PriceDecreases = (int?)(strategyDetail.Product.Price * ((100.0 - percentageDecreases) / 100.0));
-                    }
+                    //if (this.PercentageDecrease.HasValue && this.PercentageDecrease > 0)
+                    //{
+                    //    strategyDetail.Product.PriceDecreases = (int?)(strategyDetail.Product.Price * ((100.0 - percentageDecreases) / 100.0));
+                    //}
 
                     var productStore = strategyDetail.Product.ProductStores.FirstOrDefault(x => x.Store.Id == strategyDetail.StoreId);
                     productStore.PriceDecreases = (int?)(strategyDetail.Product.Price * ((100.0 - percentageDecreases) / 100.0));

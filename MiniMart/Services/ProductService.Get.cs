@@ -1,4 +1,5 @@
-﻿using Castle.Core.Internal;
+﻿using Azure.Storage.Sas;
+using Castle.Core.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniMart.API.Extensions;
@@ -13,32 +14,40 @@ namespace MiniMart.API.Services
         public async Task<GetProductResponse> GetProduct(int categoryId, int productId)
         {
             var product = await ValidateProduct(categoryId, productId);
+            var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+            product.Img = imgUri.ToString();
             return new GetProductResponse().GetMap(product);
         }
 
         public async Task<List<GetProductLocationResponse>> GetLocation(int productId, GetProductLocationRequest request)
         {
-           return await _productStoreRepository.GetQuery(x => x.Product.Id == productId)
-                                                          .Select(new StoreResponse().GetSelection())
-                                                          .GroupBy(x => x.CityId)
-                                                          .Select(x => new GetProductLocationResponse
-                                                          {
-                                                              CityId = x.Key,
-                                                              CityName = x.FirstOrDefault().CityName,
-                                                              Stores = x.ToList()
-                                                          })
-                                                          .ToListAsync();
-            
+            return await _productStoreRepository.GetQuery(x => x.Product.Id == productId)
+                                                           .Select(new StoreResponse().GetSelection())
+                                                           .GroupBy(x => x.CityId)
+                                                           .Select(x => new GetProductLocationResponse
+                                                           {
+                                                               CityId = x.Key,
+                                                               CityName = x.FirstOrDefault().CityName,
+                                                               Stores = x.ToList()
+                                                           })
+                                                           .ToListAsync();
         }
 
         public async Task<PagingResult<GetProductInCartResponse>> GetProductInCart()
         {
             var user = await ValidateUser(_user.GetUserId());
-            return await _favouriteProductRepository.GetQuery(x => x.User.Id == user.Id)
+            var products = await _favouriteProductRepository.GetQuery(x => x.User.Id == user.Id)
                                                             .OrderByDescending(x => x.UpdateOn)
                                                             .Select(new GetProductInCartResponse().GetSelection())
                                                             .ToPagedListAsync(1, 9000);
+            foreach (var product in products.Data)
+            {
+                var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                product.Img = imgUri.ToString();
+            }
+            return products;
         }
+
         public async Task<PagingResult<GetProductResponse>> GetProducts([FromQuery] GetProductRequest request)
         {
             if (request.Search.IsNullOrEmpty())
@@ -46,8 +55,8 @@ namespace MiniMart.API.Services
                 return new PagingResult<GetProductResponse>();
             }
             var products = await _productRepository.GetQuery(x => x.Name.ToLower().Contains(request.Search.ToLower())
-                                                                  && (!request.IsSale.HasValue 
-                                                                      || (x.PriceDecreases.HasValue && x.PriceDecreases > 0)  
+                                                                  && (!request.IsSale.HasValue
+                                                                      || (x.PriceDecreases.HasValue && x.PriceDecreases > 0)
                                                                   ))
                                                    .Select(new GetProductResponse().GetSelection())
                                                    .ToPagedListAsync(request.PageNo, request.PageSize);
@@ -63,6 +72,8 @@ namespace MiniMart.API.Services
                                                               Stores = x.ToList()
                                                           })
                                                           .ToListAsync();
+                var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                product.Img = imgUri.ToString();
             }
             return products;
         }
@@ -73,6 +84,11 @@ namespace MiniMart.API.Services
                                                                          || (ps.Product.PriceDecreases.HasValue && ps.Product.PriceDecreases.Value > 0))
                                                         .Select(new GetSaleProductResponse().GetSelection())
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
+            foreach (var product in products.Data)
+            {
+                var imgUri = await GetSasUriAsync(product.Img, BlobSasPermissions.Read, new DateTimeOffset(DateTime.UtcNow.AddDays(1)));
+                product.Img = imgUri.ToString();
+            }
             return products;
         }
 
@@ -91,7 +107,7 @@ namespace MiniMart.API.Services
         {
             var store = await ValidateStore(request.StoreId);
             var products = await _productStoreRepository.GetQuery(ps => ps.Store.Id == store.Id
-                                                                        && (request.Search.IsNullOrEmpty() 
+                                                                        && (request.Search.IsNullOrEmpty()
                                                                             || ps.Product.Id.ToString() == request.Search
                                                                             || ps.Product.Name.Contains(request.Search)
                                                                         ))
@@ -108,10 +124,32 @@ namespace MiniMart.API.Services
                                                             Quantity = ps.Quantity.HasValue ? ps.Quantity.Value : 0,
                                                             CategoryId = ps.Product.Category.Id,
                                                             CategoryName = ps.Product.Category.Name,
-                                                            LK_ProductUnit = ps.Product.LK_ProductUnit
+                                                            LK_ProductUnit = ps.Product.LK_ProductUnit,
+                                                            StrategyId = ps.Product.StrategyDetails.Any(sd => sd.ProductId == ps.Product.Id
+                                                                                                              && sd.StoreId == ps.Store.Id
+                                                                                                              && sd.Strategy.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
+                                                                         ? ps.Product.StrategyDetails.FirstOrDefault(sd => sd.ProductId == ps.Product.Id
+                                                                                                                           && sd.StoreId == ps.Store.Id
+                                                                                                                           && sd.Strategy.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
+                                                                                                     .Strategy.Id
+                                                                         : null,
+                                                            StrategyName = ps.Product.StrategyDetails.Any(sd => sd.ProductId == ps.Product.Id
+                                                                                                                && sd.StoreId == ps.Store.Id
+                                                                                                                && sd.Strategy.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
+                                                                           ? ps.Product.StrategyDetails.FirstOrDefault(sd => sd.ProductId == ps.Product.Id
+                                                                                                                             && sd.StoreId == ps.Store.Id
+                                                                                                                             && sd.Strategy.LK_ActivatedStrategyStatus == Domain.Enums.LK_ActivatedStrategyStatus.Active)
+                                                                                                       .Strategy.Name ?? "Tesing Promotion"
+                                                                           : null
                                                         })
                                                         .ToPagedListAsync(request.PageNo, request.PageSize);
             return products;
+        }
+
+        public async Task<Uri> GetSasUriAsync(string fileName, BlobSasPermissions permissions, DateTimeOffset expiresOn)
+        {
+            var blob = _azureBlobClient.GetBlobClient(fileName);
+            return blob.GenerateSasUri(permissions, expiresOn);
         }
     }
 }

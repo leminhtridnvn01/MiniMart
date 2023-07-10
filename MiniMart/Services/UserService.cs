@@ -26,14 +26,22 @@ namespace MiniMart.API.Services
                 throw new Exception("Email is already existed");
             }
             using var hmac = new HMACSHA512();
+
+            var client = new Client()
+            {
+                
+            };
+
             var user = new User()
             {
                 Email = registerRequest.Email,
                 Name = registerRequest.Name,
                 PhoneNumber = registerRequest.PhoneNumber,
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerRequest.Password)),
-                PasswordSalt = hmac.Key
+                PasswordSalt = hmac.Key,
+                Client = client
             };
+
             await _userRepository.InsertAsync(user);
 
             await _unitOfWork.SaveChangeAsync();

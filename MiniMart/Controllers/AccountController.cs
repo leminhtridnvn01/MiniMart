@@ -24,7 +24,7 @@ namespace MiniMart.API.Controllers
                 {
                     return BadRequest("Can not register now!");
                 }
-                return Ok("Welcome " + newUser.Username + " !!!" + "\n" + "Token: " + newUser.Token);
+                return Ok(newUser);
             }
             catch (Exception e)
             {

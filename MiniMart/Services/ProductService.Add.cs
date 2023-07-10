@@ -30,7 +30,7 @@ namespace MiniMart.API.Services
                 await _productRepository.InsertAsync(product);
                 await _unitOfWork.SaveChangeAsync();
 
-                if (request.Img != null)
+                if (request.Img?.Length > 0)
                 {
                     var fileName = product.Id.ToString() + "-" + product.Name + "-" + DateTime.UtcNow.AddHours(7).Ticks.ToString();
                     product.Img = fileName;
@@ -97,7 +97,7 @@ namespace MiniMart.API.Services
                 var category = await ValidateCategory(request.CategoryId);
                 var (product, store) = await ValidateProductStore(request.ProductId, request.StoreId);
 
-                if (request.Img != null)
+                if (request.Img?.Length > 0)
                 {
                     var fileName = product.Id.ToString() + "-" + product.Name + "-" + DateTime.UtcNow.AddHours(7).Ticks.ToString();
                     product.Img = fileName;

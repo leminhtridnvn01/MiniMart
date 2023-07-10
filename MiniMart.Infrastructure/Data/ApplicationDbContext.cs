@@ -102,7 +102,7 @@ namespace MiniMart.Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseLazyLoadingProxies()
-                .UseSqlServer("server=DHA-000986\\TRILE;database=MiniMart;user id=sa;password=123456;");
+                .UseSqlServer("Server=tcp:trile-sql-us.database.windows.net,1433;Initial Catalog=MiniMart;Persist Security Info=False;User ID=trile;Password=Pa$$word;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
             return new ApplicationDbContext(optionsBuilder.Options, new NoMediator());
         }
